@@ -1107,6 +1107,32 @@ local function useEventSkills()
     end)
 end
 
+local function useOceanHopRegularSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if oceanHopRegularSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if oceanHopRegularSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if oceanHopRegularSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if oceanHopRegularSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if oceanHopRegularSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
+local function useOceanHopFastSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if oceanHopFastSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if oceanHopFastSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if oceanHopFastSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if oceanHopFastSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if oceanHopFastSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
 local function summonBoss()
     if not autofarmEnabled or mainFarmPaused or STEPS_IN_PROGRESS then return end
     pcall(function()
@@ -1282,18 +1308,10 @@ local function farmOceanHopMob(mob, mode)
     
     if mode == "regular" then
         if oceanHopRegularTool then forceEquipTool(oceanHopRegularTool) end
-        if oceanHopRegularSkillZ then useSkillZ() end
-        if oceanHopRegularSkillX then useSkillX() end
-        if oceanHopRegularSkillC then useSkillC() end
-        if oceanHopRegularSkillV then useSkillV() end
-        if oceanHopRegularSkillF then useSkillF() end
+        useOceanHopRegularSkills()
     elseif mode == "fast" then
         if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-        if oceanHopFastSkillZ then useSkillZ() end
-        if oceanHopFastSkillX then useSkillX() end
-        if oceanHopFastSkillC then useSkillC() end
-        if oceanHopFastSkillV then useSkillV() end
-        if oceanHopFastSkillF then useSkillF() end
+        useOceanHopFastSkills()
     end
 end
 
