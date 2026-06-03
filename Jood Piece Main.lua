@@ -360,6 +360,7 @@ local Window = Rayfield:CreateWindow({
 local ConfigTab = Window:CreateTab("💾 Config",    nil)
 local BossTab   = Window:CreateTab("👹 Boss",      nil)
 local OceanTab  = Window:CreateTab("🌊 Ocean",     nil)
+local OceanHopTab = Window:CreateTab("🔄 Ocean-Hop", nil)
 local EventTab  = Window:CreateTab("🎪 Event",     nil)
 local TitleTab  = Window:CreateTab("👑 Title",     nil)
 local GuarTab   = Window:CreateTab("🎁 Guarantee", nil)
@@ -557,85 +558,107 @@ UI.OceanSkillV=OceanTab:CreateToggle({Name="V",CurrentValue=oceanSkillV,Callback
 UI.OceanSkillF=OceanTab:CreateToggle({Name="F",CurrentValue=oceanSkillF,Callback=function(v) oceanSkillF=v end})
 
 -- ================================================
--- OCEAN-HOP SECTION
+-- OCEAN-HOP TAB
 -- ================================================
-OceanTab:CreateSection("Ocean-Hop Server Hopper")
-UI.OceanHopToggle=OceanTab:CreateToggle({
+OceanHopTab:CreateSection("🔄 Ocean-Hop Master Control")
+UI.OceanHopToggle=OceanHopTab:CreateToggle({
     Name="🔄 Ocean-Hop Enabled", CurrentValue=oceanHopEnabled,
     Callback=function(v) oceanHopEnabled=v; oceanHopFastSkillActivated=false end
 })
 
-OceanTab:CreateSection("🛡️ MUI (Immortality Required)")
-UI.OceanHopMUIDD=OceanTab:CreateDropdown({
+OceanHopTab:CreateSection("Priority Mob Selection")
+OceanHopTab:CreateButton({Name="🔄 Refresh Ocean Mobs",Callback=function()
+    local oceanMobs = {}
+    pcall(function()
+        if workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean") then
+            for _, mob in pairs(workspace.Mobs.Ocean:GetChildren()) do
+                if mob:IsA("Model") then table.insert(oceanMobs, mob.Name) end
+            end
+        end
+    end)
+    if UI.OceanHopPriorityDD then UI.OceanHopPriorityDD:Refresh(oceanMobs, true) end
+end})
+UI.OceanHopPriorityToggle=OceanHopTab:CreateToggle({
+    Name="Enable Priority Farm", CurrentValue=oceanHopPriorityEnabled,
+    Callback=function(v) oceanHopPriorityEnabled=v end
+})
+UI.OceanHopPriorityDD=OceanHopTab:CreateDropdown({
+    Name="Priority Mob", Options={},
+    CurrentOption=oceanHopPriorityMob and {oceanHopPriorityMob} or {},
+    MultipleOptions=false,
+    Callback=function(o) oceanHopPriorityMob=o[1] end
+})
+
+OceanHopTab:CreateSection("🛡️ MUI Immortality (REQUIRED)")
+UI.OceanHopMUIDD=OceanHopTab:CreateDropdown({
     Name="MUI Tool ⚠️ REQUIRED", Options=getBackpackTools(),
     CurrentOption=oceanHopMUITool and {oceanHopMUITool} or {},
     MultipleOptions=false,
     Callback=function(o) oceanHopMUITool=o[1] end
 })
-UI.OceanHopMUIToggle=OceanTab:CreateToggle({
+OceanHopTab:CreateButton({Name="🔄 Refresh Tools",Callback=function()
+    if UI.OceanHopMUIDD then UI.OceanHopMUIDD:Refresh(getBackpackTools(),true) end
+end})
+UI.OceanHopMUIToggle=OceanHopTab:CreateToggle({
     Name="Auto Equip MUI", CurrentValue=oceanHopMUIAutoEquip,
     Callback=function(v) oceanHopMUIAutoEquip=v end
 })
-UI.OceanHopMUISkillF=OceanTab:CreateToggle({
+UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
     Name="Activate F (Immortality)", CurrentValue=oceanHopMUISkillF,
     Callback=function(v) oceanHopMUISkillF=v end
 })
 
-OceanTab:CreateSection("Priority Mob Selection")
-UI.OceanHopPriorityToggle=OceanTab:CreateToggle({
-    Name="Enable Priority Farm", CurrentValue=oceanHopPriorityEnabled,
-    Callback=function(v) oceanHopPriorityEnabled=v end
-})
-UI.OceanHopPriorityDD=OceanTab:CreateDropdown({
-    Name="Priority Mob", Options=getAvailableBosses(),
-    CurrentOption=oceanHopPriorityMob and {oceanHopPriorityMob} or {},
-    MultipleOptions=false,
-    Callback=function(o) oceanHopPriorityMob=o[1] end
-})
-OceanTab:CreateButton({Name="🔄 Refresh Mobs",Callback=function()
-    if UI.OceanHopPriorityDD then UI.OceanHopPriorityDD:Refresh(getAvailableBosses(),true) end
-end})
-
-OceanTab:CreateSection("📌 Regular Farm | Fast Farm (Pick ONE)")
-UI.OceanHopRegularToggle=OceanTab:CreateToggle({
+OceanHopTab:CreateSection("📍 Regular Farm (Choose ONE)")
+UI.OceanHopRegularToggle=OceanHopTab:CreateToggle({
     Name="Regular Farm", CurrentValue=oceanHopRegularEnabled,
     Callback=function(v) oceanHopRegularEnabled=v; if v then oceanHopFastEnabled=false end end
 })
-UI.OceanHopRegularDD=OceanTab:CreateDropdown({
+UI.OceanHopRegularDD=OceanHopTab:CreateDropdown({
     Name="Tool", Options=getBackpackTools(),
     CurrentOption=oceanHopRegularTool and {oceanHopRegularTool} or {},
     MultipleOptions=false,
     Callback=function(o) oceanHopRegularTool=o[1] end
 })
+OceanHopTab:CreateButton({Name="🔄 Refresh Tools",Callback=function()
+    if UI.OceanHopRegularDD then UI.OceanHopRegularDD:Refresh(getBackpackTools(),true) end
+end})
+UI.OceanHopRegularEquipToggle=OceanHopTab:CreateToggle({
+    Name="Auto Equip Tool", CurrentValue=true,
+    Callback=function(v) end
+})
 
-OceanTab:CreateSection("Regular Farm Skills")
-UI.OceanHopRegularSkillZ=OceanTab:CreateToggle({Name="Z",CurrentValue=oceanHopRegularSkillZ,Callback=function(v) oceanHopRegularSkillZ=v end})
-UI.OceanHopRegularSkillX=OceanTab:CreateToggle({Name="X",CurrentValue=oceanHopRegularSkillX,Callback=function(v) oceanHopRegularSkillX=v end})
-UI.OceanHopRegularSkillC=OceanTab:CreateToggle({Name="C",CurrentValue=oceanHopRegularSkillC,Callback=function(v) oceanHopRegularSkillC=v end})
-UI.OceanHopRegularSkillV=OceanTab:CreateToggle({Name="V",CurrentValue=oceanHopRegularSkillV,Callback=function(v) oceanHopRegularSkillV=v end})
-UI.OceanHopRegularSkillF=OceanTab:CreateToggle({Name="F",CurrentValue=oceanHopRegularSkillF,Callback=function(v) oceanHopRegularSkillF=v end})
+OceanHopTab:CreateSection("Regular Farm Skills")
+UI.OceanHopRegularSkillZ=OceanHopTab:CreateToggle({Name="Z",CurrentValue=oceanHopRegularSkillZ,Callback=function(v) oceanHopRegularSkillZ=v end})
+UI.OceanHopRegularSkillX=OceanHopTab:CreateToggle({Name="X",CurrentValue=oceanHopRegularSkillX,Callback=function(v) oceanHopRegularSkillX=v end})
+UI.OceanHopRegularSkillC=OceanHopTab:CreateToggle({Name="C",CurrentValue=oceanHopRegularSkillC,Callback=function(v) oceanHopRegularSkillC=v end})
+UI.OceanHopRegularSkillV=OceanHopTab:CreateToggle({Name="V",CurrentValue=oceanHopRegularSkillV,Callback=function(v) oceanHopRegularSkillV=v end})
+UI.OceanHopRegularSkillF=OceanHopTab:CreateToggle({Name="F",CurrentValue=oceanHopRegularSkillF,Callback=function(v) oceanHopRegularSkillF=v end})
 
-UI.OceanHopFastToggle=OceanTab:CreateToggle({
+OceanHopTab:CreateSection("⚡ Fast Farm Vergil (Choose ONE)")
+UI.OceanHopFastToggle=OceanHopTab:CreateToggle({
     Name="⚡ Fast Farm (Vergil)", CurrentValue=oceanHopFastEnabled,
     Callback=function(v) oceanHopFastEnabled=v; if v then oceanHopRegularEnabled=false; oceanHopFastSkillActivated=false end end
 })
-UI.OceanHopFastDD=OceanTab:CreateDropdown({
-    Name="Tool (Vergil)", Options=getBackpackTools(),
+UI.OceanHopFastDD=OceanHopTab:CreateDropdown({
+    Name="Tool (Vergil) ⚠️ REQUIRED", Options=getBackpackTools(),
     CurrentOption=oceanHopFastTool and {oceanHopFastTool} or {},
     MultipleOptions=false,
     Callback=function(o) oceanHopFastTool=o[1] end
 })
-UI.OceanHopFastSkillF=OceanTab:CreateToggle({
+OceanHopTab:CreateButton({Name="🔄 Refresh Tools",Callback=function()
+    if UI.OceanHopFastDD then UI.OceanHopFastDD:Refresh(getBackpackTools(),true) end
+end})
+UI.OceanHopFastSkillF=OceanHopTab:CreateToggle({
     Name="⚡ F Skill (ONCE at start)", CurrentValue=oceanHopFastSkillF,
     Callback=function(v) oceanHopFastSkillF=v end
 })
 
-OceanTab:CreateSection("Fast Farm Skills")
-UI.OceanHopFastSkillZ=OceanTab:CreateToggle({Name="Z",CurrentValue=oceanHopFastSkillZ,Callback=function(v) oceanHopFastSkillZ=v end})
-UI.OceanHopFastSkillX=OceanTab:CreateToggle({Name="X",CurrentValue=oceanHopFastSkillX,Callback=function(v) oceanHopFastSkillX=v end})
-UI.OceanHopFastSkillC=OceanTab:CreateToggle({Name="C",CurrentValue=oceanHopFastSkillC,Callback=function(v) oceanHopFastSkillC=v end})
-UI.OceanHopFastSkillV=OceanTab:CreateToggle({Name="V",CurrentValue=oceanHopFastSkillV,Callback=function(v) oceanHopFastSkillV=v end})
-UI.OceanHopFastSkillF=OceanTab:CreateToggle({Name="F",CurrentValue=oceanHopFastSkillF,Callback=function(v) oceanHopFastSkillF=v end})
+OceanHopTab:CreateSection("Fast Farm Skills")
+UI.OceanHopFastSkillZ=OceanHopTab:CreateToggle({Name="Z",CurrentValue=oceanHopFastSkillZ,Callback=function(v) oceanHopFastSkillZ=v end})
+UI.OceanHopFastSkillX=OceanHopTab:CreateToggle({Name="X",CurrentValue=oceanHopFastSkillX,Callback=function(v) oceanHopFastSkillX=v end})
+UI.OceanHopFastSkillC=OceanHopTab:CreateToggle({Name="C",CurrentValue=oceanHopFastSkillC,Callback=function(v) oceanHopFastSkillC=v end})
+UI.OceanHopFastSkillV=OceanHopTab:CreateToggle({Name="V",CurrentValue=oceanHopFastSkillV,Callback=function(v) oceanHopFastSkillV=v end})
+UI.OceanHopFastSkillF=OceanHopTab:CreateToggle({Name="F",CurrentValue=oceanHopFastSkillF,Callback=function(v) oceanHopFastSkillF=v end})
 
 UI.EventToggle=EventTab:CreateToggle({
     Name="Farm Event", CurrentValue=eventIslandEnabled,
@@ -1404,19 +1427,23 @@ task.spawn(function()
             end)
             
             if #mobs > 0 then
-                -- Activate Vergil F skill if not already done
-                if not oceanHopFastSkillActivated and oceanHopFastTool then
+                -- FAST FARM SEQUENCE: Vergil F → MUI → Vergil Farm
+                if not oceanHopFastSkillActivated then
                     print("⚡ [OCEAN-HOP] Activating Vergil F skill...")
-                    useSkillF()
-                    oceanHopFastSkillActivated = true
+                    if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
+                    if oceanHopFastSkillF then useSkillF() end
                     task.wait(1)
                     
-                    -- Then activate MUI immortality
+                    print("🛡️ [OCEAN-HOP] Activating MUI immortality...")
                     if oceanHopMUIAutoEquip and oceanHopMUITool then
                         forceEquipTool(oceanHopMUITool)
                         if oceanHopMUISkillF then useSkillF() end
                         task.wait(1)
                     end
+                    
+                    -- Switch back to Vergil for farming
+                    if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
+                    oceanHopFastSkillActivated = true
                 end
                 
                 -- Farm with priority if enabled
@@ -1455,6 +1482,7 @@ task.spawn(function()
                 task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
                     print("🌐 [OCEAN-HOP] Server hopping...")
+                    oceanHopFastSkillActivated = false
                     game:GetService("TeleportService"):Teleport(game.PlaceId)
                 end
             end
