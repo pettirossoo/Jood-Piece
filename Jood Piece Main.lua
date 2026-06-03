@@ -563,7 +563,7 @@ UI.OceanSkillF=OceanTab:CreateToggle({Name="F",CurrentValue=oceanSkillF,Callback
 OceanHopTab:CreateSection("🔄 Ocean-Hop Master Control")
 UI.OceanHopToggle=OceanHopTab:CreateToggle({
     Name="🔄 Ocean-Hop Enabled", CurrentValue=oceanHopEnabled,
-    Callback=function(v) oceanHopEnabled=v; if not v then oceanHopFastSkillActivated=false end end
+    Callback=function(v) oceanHopEnabled=v; oceanHopFastSkillActivated=false end
 })
 
 OceanHopTab:CreateSection("Priority Mob Selection")
@@ -637,7 +637,7 @@ UI.OceanHopRegularSkillF=OceanHopTab:CreateToggle({Name="F",CurrentValue=oceanHo
 OceanHopTab:CreateSection("⚡ Fast Farm Vergil (Choose ONE)")
 UI.OceanHopFastToggle=OceanHopTab:CreateToggle({
     Name="⚡ Fast Farm (Vergil)", CurrentValue=oceanHopFastEnabled,
-    Callback=function(v) oceanHopFastEnabled=v; if v then oceanHopRegularEnabled=false end; oceanHopFastSkillActivated=false end
+    Callback=function(v) oceanHopFastEnabled=v; if v then oceanHopRegularEnabled=false; oceanHopFastSkillActivated=false end end
 })
 UI.OceanHopFastDD=OceanHopTab:CreateDropdown({
     Name="Tool (Vergil) ⚠️ REQUIRED", Options=getBackpackTools(),
@@ -1138,7 +1138,7 @@ local function useSkillF()
         local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
         if ui and ui:FindFirstChild("Mobile Button") then
             local f=ui["Mobile Button"]:FindFirstChild("F")
-            if f then ticketClick(f); task.wait(0.1) end
+            if f then robustClick(f); task.wait(0.1) end
         end
     end)
 end
@@ -1476,7 +1476,6 @@ task.spawn(function()
                 print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
                 task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
-                    oceanHopFastSkillActivated = false
                     print("🌐 [OCEAN-HOP] Server hopping...")
                     game:GetService("TeleportService"):Teleport(game.PlaceId)
                 end
@@ -1500,11 +1499,7 @@ task.spawn(function()
                 if not oceanHopFastSkillActivated then
                     print("⚡ [OCEAN-HOP] Activating Vergil F skill...")
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-                    -- Temporarily activate F skill ONCE
-                    local tempSkillF = oceanHopFastSkillF
-                    oceanHopFastSkillF = true
-                    useSkillF()
-                    oceanHopFastSkillF = tempSkillF
+                    if oceanHopFastSkillF then useSkillF() end
                     task.wait(1)
                     
                     print("🛡️ [OCEAN-HOP] Activating MUI immortality...")
