@@ -1133,6 +1133,56 @@ local function useOceanHopFastSkills()
     end)
 end
 
+local function useSkillF()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local f=ui["Mobile Button"]:FindFirstChild("F")
+            if f then robustClick(f); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillZ()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local z=ui["Mobile Button"]:FindFirstChild("Z")
+            if z then robustClick(z); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillX()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local x=ui["Mobile Button"]:FindFirstChild("X")
+            if x then robustClick(x); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillC()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local c=ui["Mobile Button"]:FindFirstChild("C")
+            if c then robustClick(c); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillV()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local v=ui["Mobile Button"]:FindFirstChild("V")
+            if v then robustClick(v); task.wait(0.1) end
+        end
+    end)
+end
+
 local function summonBoss()
     if not autofarmEnabled or mainFarmPaused or STEPS_IN_PROGRESS then return end
     pcall(function()
