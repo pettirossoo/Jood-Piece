@@ -648,7 +648,7 @@ UI.OceanHopFastDD=OceanHopTab:CreateDropdown({
 OceanHopTab:CreateButton({Name="🔄 Refresh Tools",Callback=function()
     if UI.OceanHopFastDD then UI.OceanHopFastDD:Refresh(getBackpackTools(),true) end
 end})
-UI.OceanHopFastSkillF=OceanHopTab:CreateToggle({
+UI.OceanHopFastSkillFInitial=OceanHopTab:CreateToggle({
     Name="⚡ F Skill (ONCE at start)", CurrentValue=oceanHopFastSkillF,
     Callback=function(v) oceanHopFastSkillF=v end
 })
@@ -658,7 +658,8 @@ UI.OceanHopFastSkillZ=OceanHopTab:CreateToggle({Name="Z",CurrentValue=oceanHopFa
 UI.OceanHopFastSkillX=OceanHopTab:CreateToggle({Name="X",CurrentValue=oceanHopFastSkillX,Callback=function(v) oceanHopFastSkillX=v end})
 UI.OceanHopFastSkillC=OceanHopTab:CreateToggle({Name="C",CurrentValue=oceanHopFastSkillC,Callback=function(v) oceanHopFastSkillC=v end})
 UI.OceanHopFastSkillV=OceanHopTab:CreateToggle({Name="V",CurrentValue=oceanHopFastSkillV,Callback=function(v) oceanHopFastSkillV=v end})
-UI.OceanHopFastSkillF=OceanHopTab:CreateToggle({Name="F",CurrentValue=oceanHopFastSkillF,Callback=function(v) oceanHopFastSkillF=v end})
+-- NOTE: F during farming is controlled by oceanHopFastSkillF from initial activation
+-- Do NOT add a second F toggle here to avoid conflicts
 
 UI.EventToggle=EventTab:CreateToggle({
     Name="Farm Event", CurrentValue=eventIslandEnabled,
@@ -945,6 +946,26 @@ function updateAllUI()
         if UI.EventSkillV then UI.EventSkillV:Set(eventSkillV) end
         if UI.EventSkillF then UI.EventSkillF:Set(eventSkillF) end
         
+        -- Ocean-Hop toggles
+        if UI.OceanHopToggle then UI.OceanHopToggle:Set(oceanHopEnabled) end
+        if UI.OceanHopPriorityToggle then UI.OceanHopPriorityToggle:Set(oceanHopPriorityEnabled) end
+        if UI.OceanHopMUIToggle then UI.OceanHopMUIToggle:Set(oceanHopMUIAutoEquip) end
+        if UI.OceanHopMUISkillF then UI.OceanHopMUISkillF:Set(oceanHopMUISkillF) end
+        if UI.OceanHopRegularToggle then UI.OceanHopRegularToggle:Set(oceanHopRegularEnabled) end
+        if UI.OceanHopRegularEquipToggle then UI.OceanHopRegularEquipToggle:Set(true) end
+        if UI.OceanHopRegularSkillZ then UI.OceanHopRegularSkillZ:Set(oceanHopRegularSkillZ) end
+        if UI.OceanHopRegularSkillX then UI.OceanHopRegularSkillX:Set(oceanHopRegularSkillX) end
+        if UI.OceanHopRegularSkillC then UI.OceanHopRegularSkillC:Set(oceanHopRegularSkillC) end
+        if UI.OceanHopRegularSkillV then UI.OceanHopRegularSkillV:Set(oceanHopRegularSkillV) end
+        if UI.OceanHopRegularSkillF then UI.OceanHopRegularSkillF:Set(oceanHopRegularSkillF) end
+        if UI.OceanHopFastToggle then UI.OceanHopFastToggle:Set(oceanHopFastEnabled) end
+        if UI.OceanHopFastSkillF then UI.OceanHopFastSkillF:Set(oceanHopFastSkillF) end
+        if UI.OceanHopFastSkillZ then UI.OceanHopFastSkillZ:Set(oceanHopFastSkillZ) end
+        if UI.OceanHopFastSkillX then UI.OceanHopFastSkillX:Set(oceanHopFastSkillX) end
+        if UI.OceanHopFastSkillC then UI.OceanHopFastSkillC:Set(oceanHopFastSkillC) end
+        if UI.OceanHopFastSkillV then UI.OceanHopFastSkillV:Set(oceanHopFastSkillV) end
+        if UI.OceanHopFastSkillF then UI.OceanHopFastSkillF:Set(oceanHopFastSkillF) end
+        
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
         if UI.AutoDeleteSkillEffectToggle then UI.AutoDeleteSkillEffectToggle:Set(autoDeleteSkillEffect) end
         
@@ -963,6 +984,12 @@ function updateAllUI()
         if UI.GuarDD and #selectedGuaranteeItems > 0 then UI.GuarDD:Set(selectedGuaranteeItems) end
         if UI.MerchDD and #selectedMerchantItems > 0 then UI.MerchDD:Set(selectedMerchantItems) end
         
+        -- Ocean-Hop dropdowns
+        if UI.OceanHopMUIDD and oceanHopMUITool then UI.OceanHopMUIDD:Set({oceanHopMUITool}) end
+        if UI.OceanHopPriorityDD and oceanHopPriorityMob then UI.OceanHopPriorityDD:Set({oceanHopPriorityMob}) end
+        if UI.OceanHopRegularDD and oceanHopRegularTool then UI.OceanHopRegularDD:Set({oceanHopRegularTool}) end
+        if UI.OceanHopFastDD and oceanHopFastTool then UI.OceanHopFastDD:Set({oceanHopFastTool}) end
+        
         task.wait(0.1)
         
         -- Refresh dropdowns with latest data
@@ -973,6 +1000,11 @@ function updateAllUI()
         if UI.EventDD then UI.EventDD:Refresh(getBackpackTools(), true) end
         if UI.TitleDD then UI.TitleDD:Refresh(getTitles(), true) end
         if UI.GuarDD then UI.GuarDD:Refresh(getGuaranteeItems(), true) end
+        
+        -- Ocean-Hop refresh
+        if UI.OceanHopMUIDD then UI.OceanHopMUIDD:Refresh(getBackpackTools(), true) end
+        if UI.OceanHopRegularDD then UI.OceanHopRegularDD:Refresh(getBackpackTools(), true) end
+        if UI.OceanHopFastDD then UI.OceanHopFastDD:Refresh(getBackpackTools(), true) end
         if UI.MerchDD then UI.MerchDD:Refresh(getMerchantItems(), true) end
         
         print("✅ UI updated completely!")
@@ -1120,6 +1152,9 @@ local function useOceanHopRegularSkills()
     end)
 end
 
+local lastFSkillClick = 0
+local fSkillCooldown = 1 -- 1 second cooldown between F clicks
+
 local function useOceanHopFastSkills()
     pcall(function()
         local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
@@ -1128,7 +1163,15 @@ local function useOceanHopFastSkills()
             if oceanHopFastSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
             if oceanHopFastSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
             if oceanHopFastSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-            if oceanHopFastSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+            -- F skill with cooldown to prevent spam
+            if oceanHopFastSkillF and ui["Mobile Button"]:FindFirstChild("F") then
+                local now = tick()
+                if now - lastFSkillClick >= fSkillCooldown then
+                    robustClick(ui["Mobile Button"]["F"])
+                    lastFSkillClick = now
+                    task.wait(0.05)
+                end
+            end
         end
     end)
 end
@@ -1500,6 +1543,7 @@ task.spawn(function()
                 if not oceanHopFastSkillActivated then
                     print("⚡ [OCEAN-HOP] Activating Vergil F skill (initial)...")
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
+                    task.wait(0.8) -- Wait for tool to equip
                     -- DIRECT F click for Vergil - ONLY if oceanHopFastSkillF is enabled
                     if oceanHopFastSkillF then
                         pcall(function()
@@ -1515,6 +1559,7 @@ task.spawn(function()
                     print("🛡️ [OCEAN-HOP] Activating MUI immortality (initial)...")
                     if oceanHopMUIAutoEquip and oceanHopMUITool then
                         forceEquipTool(oceanHopMUITool)
+                        task.wait(0.8) -- Wait for tool to equip
                         -- DIRECT F click for MUI - ONLY if oceanHopMUISkillF is enabled
                         if oceanHopMUISkillF then
                             pcall(function()
@@ -1530,6 +1575,7 @@ task.spawn(function()
                     
                     -- Switch back to Vergil for farming
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
+                    task.wait(0.5)
                     oceanHopFastSkillActivated = true
                 end
                 
