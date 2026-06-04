@@ -1545,9 +1545,18 @@ task.spawn(function()
                 if not oceanHopFastSkillActivated then
                     print("⚡ [OCEAN-HOP] Activating Vergil F skill (initial)...")
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-                    task.wait(0.8) -- Wait for tool to equip
+                    task.wait(1.5) -- Wait for tool to actually equip
+                    -- Check if tool is equipped
+                    local toolEquipped = false
+                    for _, item in pairs(LocalPlayer.Character:GetChildren()) do
+                        if item.Name == oceanHopFastTool then
+                            toolEquipped = true
+                            break
+                        end
+                    end
                     -- DIRECT F click for Vergil - ONLY if oceanHopFastSkillFInitial is enabled
-                    if oceanHopFastSkillFInitial then
+                    if toolEquipped and oceanHopFastSkillFInitial then
+                        print("⚡ [OCEAN-HOP] F skill activated!")
                         pcall(function()
                             local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                             if ui and ui:FindFirstChild("Mobile Button") then
@@ -1561,9 +1570,18 @@ task.spawn(function()
                     print("🛡️ [OCEAN-HOP] Activating MUI immortality (initial)...")
                     if oceanHopMUIAutoEquip and oceanHopMUITool then
                         forceEquipTool(oceanHopMUITool)
-                        task.wait(0.8) -- Wait for tool to equip
+                        task.wait(1.5) -- Wait for tool to actually equip
+                        -- Check if MUI is equipped
+                        local muiEquipped = false
+                        for _, item in pairs(LocalPlayer.Character:GetChildren()) do
+                            if item.Name == oceanHopMUITool then
+                                muiEquipped = true
+                                break
+                            end
+                        end
                         -- DIRECT F click for MUI - ONLY if oceanHopMUISkillF is enabled
-                        if oceanHopMUISkillF then
+                        if muiEquipped and oceanHopMUISkillF then
+                            print("🛡️ [OCEAN-HOP] MUI F skill activated!")
                             pcall(function()
                                 local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                                 if ui and ui:FindFirstChild("Mobile Button") then
@@ -1577,7 +1595,7 @@ task.spawn(function()
                     
                     -- Switch back to Vergil for farming
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-                    task.wait(0.5)
+                    task.wait(1)
                     oceanHopFastSkillActivated = true
                 end
                 
