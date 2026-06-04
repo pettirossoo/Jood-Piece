@@ -64,11 +64,12 @@ local oceanHopRegularSkillF        = false
 local oceanHopFastEnabled          = false
 local oceanHopFastTool             = nil
 local oceanHopFastSkillActivated   = false
+local oceanHopFastSkillFInitial    = false -- F singola all'inizio per Vergil
+local oceanHopFastSkillFSystem     = false -- F per auto skill system (spam)
 local oceanHopFastSkillZ           = false
 local oceanHopFastSkillX           = false
 local oceanHopFastSkillC           = false
 local oceanHopFastSkillV           = false
-local oceanHopFastSkillF           = false
 local oceanHopServerHopDelay       = 4
 
 local selectedTitle            = nil
@@ -270,7 +271,8 @@ local function getCurrentSettings()
         oceanHopFastSkillX    = oceanHopFastSkillX,
         oceanHopFastSkillC    = oceanHopFastSkillC,
         oceanHopFastSkillV    = oceanHopFastSkillV,
-        oceanHopFastSkillF    = oceanHopFastSkillF,
+        oceanHopFastSkillFInitial = oceanHopFastSkillFInitial,
+        oceanHopFastSkillFSystem = oceanHopFastSkillFSystem,
     }
 end
 
@@ -332,7 +334,8 @@ local function applyVariables(s)
     oceanHopFastSkillX    = s.oceanHopFastSkillX ~= nil and s.oceanHopFastSkillX or false
     oceanHopFastSkillC    = s.oceanHopFastSkillC ~= nil and s.oceanHopFastSkillC or false
     oceanHopFastSkillV    = s.oceanHopFastSkillV ~= nil and s.oceanHopFastSkillV or false
-    oceanHopFastSkillF    = s.oceanHopFastSkillF ~= nil and s.oceanHopFastSkillF or false
+    oceanHopFastSkillFInitial = s.oceanHopFastSkillFInitial ~= nil and s.oceanHopFastSkillFInitial or false
+    oceanHopFastSkillFSystem = s.oceanHopFastSkillFSystem ~= nil and s.oceanHopFastSkillFSystem or false
     mainFarmPaused        = false
     print("✅ Variables applied")
 end
@@ -649,8 +652,8 @@ OceanHopTab:CreateButton({Name="🔄 Refresh Tools",Callback=function()
     if UI.OceanHopFastDD then UI.OceanHopFastDD:Refresh(getBackpackTools(),true) end
 end})
 UI.OceanHopFastSkillFInitial=OceanHopTab:CreateToggle({
-    Name="⚡ F Skill (ONCE at start)", CurrentValue=oceanHopFastSkillF,
-    Callback=function(v) oceanHopFastSkillF=v end
+    Name="⚡ F Skill (ONCE at start - Vergil)", CurrentValue=oceanHopFastSkillFInitial,
+    Callback=function(v) oceanHopFastSkillFInitial=v end
 })
 
 OceanHopTab:CreateSection("Fast Farm Skills")
@@ -658,8 +661,7 @@ UI.OceanHopFastSkillZ=OceanHopTab:CreateToggle({Name="Z",CurrentValue=oceanHopFa
 UI.OceanHopFastSkillX=OceanHopTab:CreateToggle({Name="X",CurrentValue=oceanHopFastSkillX,Callback=function(v) oceanHopFastSkillX=v end})
 UI.OceanHopFastSkillC=OceanHopTab:CreateToggle({Name="C",CurrentValue=oceanHopFastSkillC,Callback=function(v) oceanHopFastSkillC=v end})
 UI.OceanHopFastSkillV=OceanHopTab:CreateToggle({Name="V",CurrentValue=oceanHopFastSkillV,Callback=function(v) oceanHopFastSkillV=v end})
--- NOTE: F during farming is controlled by oceanHopFastSkillF from initial activation
--- Do NOT add a second F toggle here to avoid conflicts
+UI.OceanHopFastSkillFSystem=OceanHopTab:CreateToggle({Name="F (Spam)",CurrentValue=oceanHopFastSkillFSystem,Callback=function(v) oceanHopFastSkillFSystem=v end})
 
 UI.EventToggle=EventTab:CreateToggle({
     Name="Farm Event", CurrentValue=eventIslandEnabled,
@@ -959,12 +961,12 @@ function updateAllUI()
         if UI.OceanHopRegularSkillV then UI.OceanHopRegularSkillV:Set(oceanHopRegularSkillV) end
         if UI.OceanHopRegularSkillF then UI.OceanHopRegularSkillF:Set(oceanHopRegularSkillF) end
         if UI.OceanHopFastToggle then UI.OceanHopFastToggle:Set(oceanHopFastEnabled) end
-        if UI.OceanHopFastSkillF then UI.OceanHopFastSkillF:Set(oceanHopFastSkillF) end
+        if UI.OceanHopFastSkillFInitial then UI.OceanHopFastSkillFInitial:Set(oceanHopFastSkillFInitial) end
         if UI.OceanHopFastSkillZ then UI.OceanHopFastSkillZ:Set(oceanHopFastSkillZ) end
         if UI.OceanHopFastSkillX then UI.OceanHopFastSkillX:Set(oceanHopFastSkillX) end
         if UI.OceanHopFastSkillC then UI.OceanHopFastSkillC:Set(oceanHopFastSkillC) end
         if UI.OceanHopFastSkillV then UI.OceanHopFastSkillV:Set(oceanHopFastSkillV) end
-        if UI.OceanHopFastSkillF then UI.OceanHopFastSkillF:Set(oceanHopFastSkillF) end
+        if UI.OceanHopFastSkillFSystem then UI.OceanHopFastSkillFSystem:Set(oceanHopFastSkillFSystem) end
         
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
         if UI.AutoDeleteSkillEffectToggle then UI.AutoDeleteSkillEffectToggle:Set(autoDeleteSkillEffect) end
@@ -1163,8 +1165,8 @@ local function useOceanHopFastSkills()
             if oceanHopFastSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
             if oceanHopFastSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
             if oceanHopFastSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-            -- F skill with cooldown to prevent spam
-            if oceanHopFastSkillF and ui["Mobile Button"]:FindFirstChild("F") then
+            -- F skill with cooldown to prevent spam - uses oceanHopFastSkillFSystem
+            if oceanHopFastSkillFSystem and ui["Mobile Button"]:FindFirstChild("F") then
                 local now = tick()
                 if now - lastFSkillClick >= fSkillCooldown then
                     robustClick(ui["Mobile Button"]["F"])
@@ -1544,8 +1546,8 @@ task.spawn(function()
                     print("⚡ [OCEAN-HOP] Activating Vergil F skill (initial)...")
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
                     task.wait(0.8) -- Wait for tool to equip
-                    -- DIRECT F click for Vergil - ONLY if oceanHopFastSkillF is enabled
-                    if oceanHopFastSkillF then
+                    -- DIRECT F click for Vergil - ONLY if oceanHopFastSkillFInitial is enabled
+                    if oceanHopFastSkillFInitial then
                         pcall(function()
                             local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                             if ui and ui:FindFirstChild("Mobile Button") then
