@@ -1561,7 +1561,7 @@ task.spawn(function()
                             local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                             if ui and ui:FindFirstChild("Mobile Button") then
                                 local f=ui["Mobile Button"]:FindFirstChild("F")
-                                if f then ticketClick(f) end
+                                if f then robustClick(f) end
                             end
                         end)
                     end
@@ -1586,7 +1586,7 @@ task.spawn(function()
                                 local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                                 if ui and ui:FindFirstChild("Mobile Button") then
                                     local f=ui["Mobile Button"]:FindFirstChild("F")
-                                    if f then ticketClick(f) end
+                                    if f then robustClick(f) end
                                 end
                             end)
                         end
