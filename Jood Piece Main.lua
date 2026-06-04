@@ -1573,16 +1573,38 @@ task.spawn(function()
                             break
                         end
                     end
-                    -- DIRECT F click for Vergil - ONLY if oceanHopFastSkillFInitial is enabled
+                    
+                    -- DIRECT F click for Vergil with verification
                     if toolEquipped and oceanHopFastSkillFInitial then
-                        print("⚡ [OCEAN-HOP] F skill activated!")
-                        pcall(function()
-                            local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-                            if ui and ui:FindFirstChild("Mobile Button") then
-                                local f=ui["Mobile Button"]:FindFirstChild("F")
-                                if f then robustClick(f) end
-                            end
-                        end)
+                        local fActivated = false
+                        local retries = 0
+                        while not fActivated and retries < 5 do
+                            print("⚡ [OCEAN-HOP] F skill click attempt #"..(retries+1))
+                            pcall(function()
+                                local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+                                if ui and ui:FindFirstChild("Mobile Button") then
+                                    local f=ui["Mobile Button"]:FindFirstChild("F")
+                                    if f then robustClick(f) end
+                                end
+                            end)
+                            task.wait(0.5)
+                            
+                            -- Check if VergilL part exists (F activation indicator)
+                            pcall(function()
+                                local leftArm = LocalPlayer.Character:FindFirstChild(oceanHopFastTool) and
+                                               LocalPlayer.Character[oceanHopFastTool]:FindFirstChild("Left Arm")
+                                if leftArm and leftArm:FindFirstChild("VergilL") then
+                                    fActivated = true
+                                    print("✅ [OCEAN-HOP] Vergil F skill VERIFIED!")
+                                end
+                            end)
+                            
+                            retries = retries + 1
+                        end
+                        
+                        if not fActivated then
+                            print("⚠️ [OCEAN-HOP] Vergil F skill failed after 5 attempts")
+                        end
                     end
                     task.wait(1)
                     
@@ -1769,6 +1791,7 @@ LocalPlayer.CharacterAdded:Connect(function()
     stepsCompleted=false; step2FActivated=false
     isExecutingSteps=false; STEPS_IN_PROGRESS=false
     alreadyAtEventIsland=false
+    oceanHopFastSkillActivated=false -- Reset Ocean-Hop Fast Farm so it restarts from 2 initial steps
     
     -- Re-equip tools only if mobs actually exist
     if oceanMobsEnabled and oceanAutoEquipTool then
