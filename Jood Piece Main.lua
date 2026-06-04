@@ -1576,10 +1576,20 @@ task.spawn(function()
                     
                     -- DIRECT F click for Vergil with verification
                     if toolEquipped and oceanHopFastSkillFInitial then
-                        local fActivated = false
-                        local retries = 0
-                        while not fActivated and retries < 5 do
-                            print("⚡ [OCEAN-HOP] F skill click attempt #"..(retries+1))
+                        -- Check if VergilL part already exists
+                        local vergilLExists = false
+                        pcall(function()
+                            local leftArm = LocalPlayer.Character:FindFirstChild(oceanHopFastTool) and
+                                           LocalPlayer.Character[oceanHopFastTool]:FindFirstChild("Left Arm")
+                            if leftArm and leftArm:FindFirstChild("VergilL") then
+                                vergilLExists = true
+                                print("✅ [OCEAN-HOP] VergilL part already exists, skipping F click")
+                            end
+                        end)
+                        
+                        -- If part doesn't exist, click F to create it
+                        if not vergilLExists then
+                            print("⚡ [OCEAN-HOP] VergilL part not found, activating F...")
                             pcall(function()
                                 local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                                 if ui and ui:FindFirstChild("Mobile Button") then
@@ -1588,22 +1598,6 @@ task.spawn(function()
                                 end
                             end)
                             task.wait(0.5)
-                            
-                            -- Check if VergilL part exists (F activation indicator)
-                            pcall(function()
-                                local leftArm = LocalPlayer.Character:FindFirstChild(oceanHopFastTool) and
-                                               LocalPlayer.Character[oceanHopFastTool]:FindFirstChild("Left Arm")
-                                if leftArm and leftArm:FindFirstChild("VergilL") then
-                                    fActivated = true
-                                    print("✅ [OCEAN-HOP] Vergil F skill VERIFIED!")
-                                end
-                            end)
-                            
-                            retries = retries + 1
-                        end
-                        
-                        if not fActivated then
-                            print("⚠️ [OCEAN-HOP] Vergil F skill failed after 5 attempts")
                         end
                     end
                     task.wait(1)
