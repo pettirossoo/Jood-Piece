@@ -4,6 +4,7 @@ local RunService    = game:GetService("RunService")
 local VirtualUser   = game:GetService("VirtualUser")
 local LocalPlayer   = Players.LocalPlayer
 local HttpService   = game:GetService("HttpService")
+local TeleportService = game:GetService("TeleportService")
 
 -- ================================================
 -- SECTION 1: VARIABLES
@@ -1229,6 +1230,23 @@ local function useSkillV()
     end)
 end
 
+local function serverHop()
+    pcall(function()
+        local Api = "https://games.roblox.com/v1/games/"
+        local placeId = game.PlaceId
+        local serverUrl = Api..placeId.."/servers/Public?sortOrder=Asc&limit=100"
+        local raw = game:HttpGet(serverUrl)
+        local servers = HttpService:JSONDecode(raw)
+        if servers and servers.data and #servers.data > 0 then
+            local randomServer = servers.data[math.random(1, #servers.data)]
+            if randomServer and randomServer.id ~= game.JobId then
+                print("🌐 [SERVER-HOP] Joining random server: "..randomServer.id)
+                TeleportService:TeleportToPlaceInstance(placeId, randomServer.id, LocalPlayer)
+            end
+        end
+    end)
+end
+
 local function summonBoss()
     if not autofarmEnabled or mainFarmPaused or STEPS_IN_PROGRESS then return end
     pcall(function()
@@ -1523,8 +1541,8 @@ task.spawn(function()
                 task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
                     oceanHopFastSkillActivated = false
-                    print("🌐 [OCEAN-HOP] Server hopping to random server...")
-                    game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+                    print("🌐 [OCEAN-HOP] Server hopping...")
+                    serverHop()
                 end
             end
         
@@ -1635,9 +1653,9 @@ task.spawn(function()
                 print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
                 task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
-                    print("🌐 [OCEAN-HOP] Server hopping to random server...")
+                    print("🌐 [OCEAN-HOP] Server hopping...")
                     oceanHopFastSkillActivated = false
-                    game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
+                    serverHop()
                 end
             end
         end
