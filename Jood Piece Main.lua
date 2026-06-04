@@ -1576,12 +1576,12 @@ task.spawn(function()
                     
                     -- DIRECT F click for Vergil with verification
                     if toolEquipped and oceanHopFastSkillFInitial then
-                        -- Check if VergilL part already exists
+                        -- Check if VergilL part already exists in exact hierarchy
                         local vergilLExists = false
                         pcall(function()
-                            local leftArm = LocalPlayer.Character:FindFirstChild(oceanHopFastTool) and
-                                           LocalPlayer.Character[oceanHopFastTool]:FindFirstChild("Left Arm")
-                            if leftArm and leftArm:FindFirstChild("VergilL") then
+                            if LocalPlayer.Character:FindFirstChild(LocalPlayer.Name) and
+                               LocalPlayer.Character[LocalPlayer.Name]:FindFirstChild("Left Arm") and
+                               LocalPlayer.Character[LocalPlayer.Name]["Left Arm"]:FindFirstChild("VergilL") then
                                 vergilLExists = true
                                 print("✅ [OCEAN-HOP] VergilL part already exists, skipping F click")
                             end
