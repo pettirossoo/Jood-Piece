@@ -428,7 +428,8 @@ ConfigTab:CreateButton({
             return
         end
         applyVariables(savedConfigs[currentConfigName])
-        updateAllUI()
+        task.wait(0.5) -- Wait for variables to apply
+        updateAllUI() -- Now update the UI
         Rayfield:Notify({Title="Loaded ✅", Content=currentConfigName, Duration=2})
     end,
 })
