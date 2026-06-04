@@ -1523,8 +1523,8 @@ task.spawn(function()
                 task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
                     oceanHopFastSkillActivated = false
-                    print("🌐 [OCEAN-HOP] Server hopping...")
-                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                    print("🌐 [OCEAN-HOP] Server hopping to random server...")
+                    game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
                 end
             end
         
@@ -1635,9 +1635,9 @@ task.spawn(function()
                 print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
                 task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
-                    print("🌐 [OCEAN-HOP] Server hopping...")
+                    print("🌐 [OCEAN-HOP] Server hopping to random server...")
                     oceanHopFastSkillActivated = false
-                    game:GetService("TeleportService"):Teleport(game.PlaceId)
+                    game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
                 end
             end
         end
