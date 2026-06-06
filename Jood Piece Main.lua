@@ -1163,6 +1163,24 @@ local function useOceanHopFastSkills()
     pcall(function()
         local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
         if ui and ui:FindFirstChild("Mobile Button") then
+            -- Check if VergilL still exists, if not reactivate F
+            local vergilLExists = false
+            pcall(function()
+                if workspace.Character and workspace.Character:FindFirstChild(LocalPlayer.Name) and
+                   workspace.Character[LocalPlayer.Name]:FindFirstChild("Left Arm") and
+                   workspace.Character[LocalPlayer.Name]["Left Arm"]:FindFirstChild("VergilL") then
+                    vergilLExists = true
+                end
+            end)
+            
+            -- If VergilL doesn't exist and F is enabled, reactivate it
+            if not vergilLExists and oceanHopFastSkillFInitial then
+                pcall(function()
+                    local f=ui["Mobile Button"]:FindFirstChild("F")
+                    if f then robustClick(f) end
+                end)
+            end
+            
             if oceanHopFastSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
             if oceanHopFastSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
             if oceanHopFastSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
@@ -1579,9 +1597,9 @@ task.spawn(function()
                         -- Check if VergilL part already exists in exact hierarchy
                         local vergilLExists = false
                         pcall(function()
-                            if LocalPlayer.Character:FindFirstChild(LocalPlayer.Name) and
-                               LocalPlayer.Character[LocalPlayer.Name]:FindFirstChild("Left Arm") and
-                               LocalPlayer.Character[LocalPlayer.Name]["Left Arm"]:FindFirstChild("VergilL") then
+                            if workspace.Character and workspace.Character:FindFirstChild(LocalPlayer.Name) and
+                               workspace.Character[LocalPlayer.Name]:FindFirstChild("Left Arm") and
+                               workspace.Character[LocalPlayer.Name]["Left Arm"]:FindFirstChild("VergilL") then
                                 vergilLExists = true
                                 print("✅ [OCEAN-HOP] VergilL part already exists, skipping F click")
                             end
