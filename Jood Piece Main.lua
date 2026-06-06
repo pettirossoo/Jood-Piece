@@ -1594,14 +1594,30 @@ task.spawn(function()
                     
                     -- DIRECT F click for Vergil with verification
                     if toolEquipped and oceanHopFastSkillFInitial then
+                        print("🔍 [DEBUG] Checking for VergilL part...")
                         -- Check if VergilL part already exists in exact hierarchy
                         local vergilLExists = false
                         pcall(function()
-                            if workspace.Character and workspace.Character:FindFirstChild(LocalPlayer.Name) and
-                               workspace.Character[LocalPlayer.Name]:FindFirstChild("Left Arm") and
-                               workspace.Character[LocalPlayer.Name]["Left Arm"]:FindFirstChild("VergilL") then
-                                vergilLExists = true
-                                print("✅ [OCEAN-HOP] VergilL part already exists, skipping F click")
+                            if workspace.Character then
+                                print("🔍 [DEBUG] workspace.Character exists")
+                                if workspace.Character:FindFirstChild(LocalPlayer.Name) then
+                                    print("🔍 [DEBUG] Found "..LocalPlayer.Name.." in workspace.Character")
+                                    if workspace.Character[LocalPlayer.Name]:FindFirstChild("Left Arm") then
+                                        print("🔍 [DEBUG] Found Left Arm")
+                                        if workspace.Character[LocalPlayer.Name]["Left Arm"]:FindFirstChild("VergilL") then
+                                            vergilLExists = true
+                                            print("✅ [OCEAN-HOP] VergilL part already exists, skipping F click")
+                                        else
+                                            print("❌ [DEBUG] VergilL not found in Left Arm")
+                                        end
+                                    else
+                                        print("❌ [DEBUG] Left Arm not found")
+                                    end
+                                else
+                                    print("❌ [DEBUG] "..LocalPlayer.Name.." not found in workspace.Character")
+                                end
+                            else
+                                print("❌ [DEBUG] workspace.Character doesn't exist")
                             end
                         end)
                         
@@ -1612,11 +1628,20 @@ task.spawn(function()
                                 local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                                 if ui and ui:FindFirstChild("Mobile Button") then
                                     local f=ui["Mobile Button"]:FindFirstChild("F")
-                                    if f then robustClick(f) end
+                                    if f then 
+                                        print("✅ [DEBUG] F button found, clicking...")
+                                        robustClick(f) 
+                                    else
+                                        print("❌ [DEBUG] F button not found!")
+                                    end
+                                else
+                                    print("❌ [DEBUG] SkillUI or Mobile Button not found!")
                                 end
                             end)
                             task.wait(0.5)
                         end
+                    else
+                        print("❌ [DEBUG] toolEquipped="..tostring(toolEquipped).." oceanHopFastSkillFInitial="..tostring(oceanHopFastSkillFInitial))
                     end
                     task.wait(1)
                     
