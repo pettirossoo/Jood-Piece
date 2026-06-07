@@ -1593,47 +1593,17 @@ task.spawn(function()
                         end
                     end
                     
-                    -- DIRECT F click for Vergil with verification loop
+                    -- DIRECT F click for Vergil - ONCE ONLY
                     if toolEquipped and oceanHopFastSkillFInitial then
-                        print("⚡ [OCEAN-HOP] Activating Vergil F skill (initial)...")
-                        
-                        local vergilLFound = false
-                        local attempts = 0
-                        
-                        while not vergilLFound and attempts < 10 do
-                            -- Click F once
-                            if attempts == 0 then
-                                print("⚡ [OCEAN-HOP] Clicking F for Vergil (attempt 1)...")
-                            else
-                                print("🔄 [OCEAN-HOP] Clicking F for Vergil again (attempt "..attempts+1..")...")
+                        print("⚡ [OCEAN-HOP] Clicking F for Vergil (ONCE)...")
+                        pcall(function()
+                            local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+                            if ui and ui:FindFirstChild("Mobile Button") then
+                                local f=ui["Mobile Button"]:FindFirstChild("F")
+                                if f then robustClick(f) end
                             end
-                            
-                            pcall(function()
-                                local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-                                if ui and ui:FindFirstChild("Mobile Button") then
-                                    local f=ui["Mobile Button"]:FindFirstChild("F")
-                                    if f then robustClick(f) end
-                                end
-                            end)
-                            task.wait(0.5)
-                            
-                            -- Check if VergilL exists
-                            pcall(function()
-                                local charName = workspace.Character.Name
-                                if workspace.Character:FindFirstChild(charName) and
-                                   workspace.Character[charName]:FindFirstChild("Left Arm") and
-                                   workspace.Character[charName]["Left Arm"]:FindFirstChild("VergilL") then
-                                    vergilLFound = true
-                                    print("✅ [OCEAN-HOP] VergilL part found! Vergil F activated successfully!")
-                                end
-                            end)
-                            
-                            attempts = attempts + 1
-                        end
-                        
-                        if not vergilLFound then
-                            print("❌ [OCEAN-HOP] VergilL activation failed after 10 attempts")
-                        end
+                        end)
+                        task.wait(0.5)
                     end
                     task.wait(1)
                     
