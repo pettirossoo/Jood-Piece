@@ -873,40 +873,63 @@ function startFly()
     local hum=char:FindFirstChild("Humanoid")
     if not hrp or not hum then return end
 
-    flyBV=Instance.new("BodyVelocity")
-    flyBV.MaxForce=Vector3.new(9e9,9e9,9e9)
-    flyBV.Velocity=Vector3.new(0,0,0)
-    flyBV.Parent=hrp
+    local bg = Instance.new("BodyGyro", hrp)
+    bg.P = 9e4
+    bg.maxTorque = Vector3.new(9e9, 9e9, 9e9)
+    bg.cframe = hrp.CFrame
+    flyBG = bg
 
-    flyBG=Instance.new("BodyGyro")
-    flyBG.MaxTorque=Vector3.new(9e9,9e9,9e9)
-    flyBG.P=9e4
-    flyBG.D=500
-    flyBG.CFrame=hrp.CFrame
-    flyBG.Parent=hrp
+    local bv = Instance.new("BodyVelocity", hrp)
+    bv.velocity = Vector3.new(0,0.1,0)
+    bv.maxForce = Vector3.new(9e9, 9e9, 9e9)
+    flyBV = bv
 
-    hum.PlatformStand=true
+    hum.PlatformStand = true
 
-    flyConn=RunService.Heartbeat:Connect(function()
+    local ctrl = {f = 0, b = 0, l = 0, r = 0}
+    local lastctrl = {f = 0, b = 0, l = 0, r = 0}
+    local maxspeed = 50
+    local speed = 0
+
+    local UserInputService = game:GetService("UserInputService")
+
+    flyConn = RunService.Heartbeat:Connect(function()
         if not flyEnabled or not hrp or not hrp.Parent or not hum then return end
         if not flyBV or not flyBG then return end
 
-        local cam=workspace.CurrentCamera
-        local md=hum.MoveDirection
-        
-        -- Forward/Back and Left/Right controls
-        local ctrl_f = md.Z  -- forward/back
-        local ctrl_r = md.X  -- right/left
-        
-        if ctrl_f ~= 0 or ctrl_r ~= 0 then
-            -- Calculate velocity using camera direction
-            flyBV.Velocity = ((cam.CoordinateFrame.lookVector * ctrl_f) + ((cam.CoordinateFrame * CFrame.new(ctrl_r, ctrl_f*0.2, 0).p) - cam.CoordinateFrame.p)) * flySpeed
-        else
-            flyBV.Velocity = Vector3.new(0, 0, 0)
+        -- Get input from keyboard
+        ctrl = {f = 0, b = 0, l = 0, r = 0}
+        if UserInputService:IsKeyDown(Enum.KeyCode.W) then ctrl.f = 1 end
+        if UserInputService:IsKeyDown(Enum.KeyCode.S) then ctrl.b = 1 end
+        if UserInputService:IsKeyDown(Enum.KeyCode.A) then ctrl.l = 1 end
+        if UserInputService:IsKeyDown(Enum.KeyCode.D) then ctrl.r = 1 end
+
+        -- Acceleration system
+        if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
+            speed = speed + 0.5 + (speed/maxspeed)
+            if speed > maxspeed then
+                speed = maxspeed
+            end
+        elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
+            speed = speed - 1
+            if speed < 0 then
+                speed = 0
+            end
         end
 
-        -- Rotate to face camera direction
-        flyBG.CFrame = cam.CoordinateFrame * CFrame.Angles(-math.rad(ctrl_f*50), 0, 0)
+        -- Calculate velocity
+        local cam = workspace.CurrentCamera
+        if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
+            flyBV.velocity = ((cam.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((cam.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - cam.CoordinateFrame.p))*speed
+            lastctrl = {f = ctrl.f, b = ctrl.b, l = ctrl.l, r = ctrl.r}
+        elseif (ctrl.l + ctrl.r) == 0 and (ctrl.f + ctrl.b) == 0 and speed ~= 0 then
+            flyBV.velocity = ((cam.CoordinateFrame.lookVector * (lastctrl.f+lastctrl.b)) + ((cam.CoordinateFrame * CFrame.new(lastctrl.l+lastctrl.r,(lastctrl.f+lastctrl.b)*.2,0).p) - cam.CoordinateFrame.p))*speed
+        else
+            flyBV.velocity = Vector3.new(0,0,0)
+        end
+
+        -- Rotation
+        flyBG.cframe = cam.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
     end)
 end
 
