@@ -75,7 +75,8 @@ local flyEnabled, flySpeed     = false, 60
 local noclipEnabled            = false
 local customWalkSpeed          = 16
 local speedLoopEnabled         = false
-local autoDeleteSkillEffect    = false
+local disableVFX               = false
+local disableCamShake          = false
 local flyBV, flyBG, flyConn   = nil, nil, nil
 
 local savedConfigs       = {}
@@ -241,7 +242,8 @@ local function getCurrentSettings()
         flySpeed              = flySpeed,
         customWalkSpeed       = customWalkSpeed,
         speedLoopEnabled      = speedLoopEnabled,
-        autoDeleteSkillEffect = autoDeleteSkillEffect,
+        disableVFX            = disableVFX,
+        disableCamShake       = disableCamShake,
         followDistance        = followDistance,
         attackRange           = attackRange,
         oceanHopEnabled       = oceanHopEnabled,
@@ -298,7 +300,8 @@ local function applyVariables(s)
     flySpeed              = s.flySpeed           or 60
     customWalkSpeed       = s.customWalkSpeed    or 16
     speedLoopEnabled      = s.speedLoopEnabled   or false
-    autoDeleteSkillEffect = s.autoDeleteSkillEffect or false
+    disableVFX            = s.disableVFX         or false
+    disableCamShake       = s.disableCamShake    or false
     oceanHopEnabled       = s.oceanHopEnabled    or false
     oceanHopMUITool       = s.oceanHopMUITool
     oceanHopMUIAutoEquip  = s.oceanHopMUIAutoEquip or false
@@ -778,24 +781,35 @@ MiscTab:CreateToggle({
     Callback=function(v) noclipEnabled=v end,
 })
 
-MiscTab:CreateSection("⚡ Performance")
-MiscTab:CreateButton({
-    Name="🗑️ Delete SkillEffect (FPS Boost)",
-    Callback=function()
+MiscTab:CreateSection("⚡ Graphics Settings")
+MiscTab:CreateToggle({
+    Name="Disable VFX", CurrentValue=false,
+    Callback=function(v)
         pcall(function()
-            local se=workspace:FindFirstChild("SkillEffect")
-            if se then se:Destroy()
-                Rayfield:Notify({Title="Done ✅",Content="SkillEffect deleted!",Duration=2})
-            else
-                Rayfield:Notify({Title="Info",Content="Not found",Duration=2})
+            local btn = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            if btn and btn:FindFirstChild("SETTING") and btn.SETTING:FindFirstChild("ScrollingFrame") then
+                local vfxBtn = btn.SETTING.ScrollingFrame:FindFirstChild("DisableVFX")
+                if vfxBtn and vfxBtn:FindFirstChild("ImageButton") then
+                    robustClick(vfxBtn.ImageButton)
+                end
             end
         end)
     end,
 })
 
-UI.AutoDeleteSkillEffectToggle = MiscTab:CreateToggle({
-    Name="Auto-Delete SkillEffect", CurrentValue=autoDeleteSkillEffect,
-    Callback=function(v) autoDeleteSkillEffect=v end,
+MiscTab:CreateToggle({
+    Name="Disable Cam Shake", CurrentValue=false,
+    Callback=function(v)
+        pcall(function()
+            local btn = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            if btn and btn:FindFirstChild("SETTING") and btn.SETTING:FindFirstChild("ScrollingFrame") then
+                local shakeBtn = btn.SETTING.ScrollingFrame:FindFirstChild("CamShake")
+                if shakeBtn and shakeBtn:FindFirstChild("ImageButton") then
+                    robustClick(shakeBtn.ImageButton)
+                end
+            end
+        end)
+    end,
 })
 
 MiscTab:CreateSection("🔧 Extra")
