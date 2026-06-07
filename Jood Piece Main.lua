@@ -1593,31 +1593,48 @@ task.spawn(function()
                         end
                     end
                     
-                    -- DIRECT F click for Vergil with verification
+                    -- DIRECT F click for Vergil with verification loop
                     if toolEquipped and oceanHopFastSkillFInitial then
-                        -- Check if VergilL part already exists in exact hierarchy using dynamic player name
-                        local vergilLExists = false
+                        print("⚡ [OCEAN-HOP] Clicking F for Vergil...")
                         pcall(function()
-                            local charName = workspace.Character.Name
-                            if workspace.Character:FindFirstChild(charName) and
-                               workspace.Character[charName]:FindFirstChild("Left Arm") and
-                               workspace.Character[charName]["Left Arm"]:FindFirstChild("VergilL") then
-                                vergilLExists = true
-                                print("✅ [OCEAN-HOP] VergilL part already exists, skipping F click")
+                            local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+                            if ui and ui:FindFirstChild("Mobile Button") then
+                                local f=ui["Mobile Button"]:FindFirstChild("F")
+                                if f then robustClick(f) end
                             end
                         end)
+                        task.wait(0.5)
                         
-                        -- If part doesn't exist, click F to create it
-                        if not vergilLExists then
-                            print("⚡ [OCEAN-HOP] VergilL part not found, activating F...")
+                        -- Now loop checking if VergilL exists until it appears
+                        local vergilLFound = false
+                        local attempts = 0
+                        while not vergilLFound and attempts < 10 do
                             pcall(function()
-                                local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-                                if ui and ui:FindFirstChild("Mobile Button") then
-                                    local f=ui["Mobile Button"]:FindFirstChild("F")
-                                    if f then robustClick(f) end
+                                local charName = workspace.Character.Name
+                                if workspace.Character:FindFirstChild(charName) and
+                                   workspace.Character[charName]:FindFirstChild("Left Arm") and
+                                   workspace.Character[charName]["Left Arm"]:FindFirstChild("VergilL") then
+                                    vergilLFound = true
+                                    print("✅ [OCEAN-HOP] VergilL part found! Vergil F activated successfully!")
                                 end
                             end)
-                            task.wait(0.5)
+                            
+                            if not vergilLFound then
+                                attempts = attempts + 1
+                                print("🔄 [OCEAN-HOP] VergilL not found, retrying F click (attempt "..attempts..")...")
+                                pcall(function()
+                                    local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+                                    if ui and ui:FindFirstChild("Mobile Button") then
+                                        local f=ui["Mobile Button"]:FindFirstChild("F")
+                                        if f then robustClick(f) end
+                                    end
+                                end)
+                                task.wait(0.5)
+                            end
+                        end
+                        
+                        if not vergilLFound then
+                            print("❌ [OCEAN-HOP] VergilL activation failed after 10 attempts")
                         end
                     end
                     task.wait(1)
