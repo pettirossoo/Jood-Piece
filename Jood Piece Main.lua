@@ -1582,6 +1582,11 @@ task.spawn(function()
                 -- FAST FARM SEQUENCE: Vergil F → MUI → Vergil Farm
                 if not oceanHopFastSkillActivated then
                     print("⚡ [OCEAN-HOP] Activating Vergil F skill (initial)...")
+                    if not oceanHopFastTool then
+                        print("❌ [OCEAN-HOP] ERROR: Vergil tool not selected!")
+                        return
+                    end
+                    
                     if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
                     task.wait(1.5) -- Wait for tool to actually equip
                     -- Check if tool is equipped
@@ -1600,7 +1605,10 @@ task.spawn(function()
                             local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                             if ui and ui:FindFirstChild("Mobile Button") then
                                 local f=ui["Mobile Button"]:FindFirstChild("F")
-                                if f then robustClick(f) end
+                                if f then
+                                    if firesignal then firesignal(f.MouseButton1Click)
+                                    else f.MouseButton1Click:Fire() end
+                                end
                             end
                         end)
                         task.wait(0.5)
