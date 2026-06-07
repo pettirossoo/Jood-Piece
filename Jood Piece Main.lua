@@ -785,13 +785,34 @@ MiscTab:CreateSection("⚡ Graphics Settings")
 MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=false,
     Callback=function(v)
+        print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
         pcall(function()
-            local btn = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            if btn and btn:FindFirstChild("SETTING") and btn.SETTING:FindFirstChild("ScrollingFrame") then
-                local vfxBtn = btn.SETTING.ScrollingFrame:FindFirstChild("DisableVFX")
-                if vfxBtn and vfxBtn:FindFirstChild("ImageButton") then
-                    if firesignal then firesignal(vfxBtn.ImageButton.MouseButton1Click)
-                    else vfxBtn.ImageButton.MouseButton1Click:Fire() end
+            local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
+            
+            if settingGui then
+                local setting = settingGui:FindFirstChild("SETTING")
+                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
+                
+                if setting then
+                    local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
+                    
+                    if scrolling then
+                        local vfx = scrolling:FindFirstChild("DisableVFX")
+                        print("🔍 [DEBUG] DisableVFX found: "..tostring(vfx ~= nil))
+                        
+                        if vfx then
+                            local imgBtn = vfx:FindFirstChild("ImageButton")
+                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
+                            
+                            if imgBtn then
+                                print("✅ [DEBUG] Clicking ImageButton...")
+                                if firesignal then firesignal(imgBtn.MouseButton1Click)
+                                else imgBtn.MouseButton1Click:Fire() end
+                            end
+                        end
+                    end
                 end
             end
         end)
@@ -801,13 +822,34 @@ MiscTab:CreateToggle({
 MiscTab:CreateToggle({
     Name="Disable Cam Shake", CurrentValue=false,
     Callback=function(v)
+        print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
         pcall(function()
-            local btn = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            if btn and btn:FindFirstChild("SETTING") and btn.SETTING:FindFirstChild("ScrollingFrame") then
-                local shakeBtn = btn.SETTING.ScrollingFrame:FindFirstChild("CamShake")
-                if shakeBtn and shakeBtn:FindFirstChild("ImageButton") then
-                    if firesignal then firesignal(shakeBtn.ImageButton.MouseButton1Click)
-                    else shakeBtn.ImageButton.MouseButton1Click:Fire() end
+            local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
+            
+            if settingGui then
+                local setting = settingGui:FindFirstChild("SETTING")
+                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
+                
+                if setting then
+                    local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
+                    
+                    if scrolling then
+                        local camshake = scrolling:FindFirstChild("CamShake")
+                        print("🔍 [DEBUG] CamShake found: "..tostring(camshake ~= nil))
+                        
+                        if camshake then
+                            local imgBtn = camshake:FindFirstChild("ImageButton")
+                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
+                            
+                            if imgBtn then
+                                print("✅ [DEBUG] Clicking ImageButton...")
+                                if firesignal then firesignal(imgBtn.MouseButton1Click)
+                                else imgBtn.MouseButton1Click:Fire() end
+                            end
+                        end
+                    end
                 end
             end
         end)
