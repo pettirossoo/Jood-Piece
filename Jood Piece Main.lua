@@ -61,16 +61,7 @@ local oceanHopRegularSkillX        = false
 local oceanHopRegularSkillC        = false
 local oceanHopRegularSkillV        = false
 local oceanHopRegularSkillF        = false
--- Fast Farm (Vergil)
-local oceanHopFastEnabled          = false
-local oceanHopFastTool             = nil
-local oceanHopFastSkillActivated   = false
-local oceanHopFastSkillFInitial    = false -- F singola all'inizio per Vergil
-local oceanHopFastSkillFSystem     = false -- F per auto skill system (spam)
-local oceanHopFastSkillZ           = false
-local oceanHopFastSkillX           = false
-local oceanHopFastSkillC           = false
-local oceanHopFastSkillV           = false
+-- Fast Farm (Vergil) - REMOVED
 local oceanHopServerHopDelay       = 4
 
 local selectedTitle            = nil
@@ -266,14 +257,6 @@ local function getCurrentSettings()
         oceanHopRegularSkillC = oceanHopRegularSkillC,
         oceanHopRegularSkillV = oceanHopRegularSkillV,
         oceanHopRegularSkillF = oceanHopRegularSkillF,
-        oceanHopFastEnabled   = oceanHopFastEnabled,
-        oceanHopFastTool      = oceanHopFastTool,
-        oceanHopFastSkillZ    = oceanHopFastSkillZ,
-        oceanHopFastSkillX    = oceanHopFastSkillX,
-        oceanHopFastSkillC    = oceanHopFastSkillC,
-        oceanHopFastSkillV    = oceanHopFastSkillV,
-        oceanHopFastSkillFInitial = oceanHopFastSkillFInitial,
-        oceanHopFastSkillFSystem = oceanHopFastSkillFSystem,
     }
 end
 
@@ -329,14 +312,6 @@ local function applyVariables(s)
     oceanHopRegularSkillC = s.oceanHopRegularSkillC ~= nil and s.oceanHopRegularSkillC or false
     oceanHopRegularSkillV = s.oceanHopRegularSkillV ~= nil and s.oceanHopRegularSkillV or false
     oceanHopRegularSkillF = s.oceanHopRegularSkillF ~= nil and s.oceanHopRegularSkillF or false
-    oceanHopFastEnabled   = s.oceanHopFastEnabled or false
-    oceanHopFastTool      = s.oceanHopFastTool
-    oceanHopFastSkillZ    = s.oceanHopFastSkillZ ~= nil and s.oceanHopFastSkillZ or false
-    oceanHopFastSkillX    = s.oceanHopFastSkillX ~= nil and s.oceanHopFastSkillX or false
-    oceanHopFastSkillC    = s.oceanHopFastSkillC ~= nil and s.oceanHopFastSkillC or false
-    oceanHopFastSkillV    = s.oceanHopFastSkillV ~= nil and s.oceanHopFastSkillV or false
-    oceanHopFastSkillFInitial = s.oceanHopFastSkillFInitial ~= nil and s.oceanHopFastSkillFInitial or false
-    oceanHopFastSkillFSystem = s.oceanHopFastSkillFSystem ~= nil and s.oceanHopFastSkillFSystem or false
     mainFarmPaused        = false
     print("✅ Variables applied")
 end
@@ -616,7 +591,7 @@ UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
 OceanHopTab:CreateSection("📍 Regular Farm (Choose ONE)")
 UI.OceanHopRegularToggle=OceanHopTab:CreateToggle({
     Name="Regular Farm", CurrentValue=oceanHopRegularEnabled,
-    Callback=function(v) oceanHopRegularEnabled=v; if v then oceanHopFastEnabled=false end end
+    Callback=function(v) oceanHopRegularEnabled=v end
 })
 UI.OceanHopRegularDD=OceanHopTab:CreateDropdown({
     Name="Tool", Options=getBackpackTools(),
@@ -638,32 +613,6 @@ UI.OceanHopRegularSkillX=OceanHopTab:CreateToggle({Name="X",CurrentValue=oceanHo
 UI.OceanHopRegularSkillC=OceanHopTab:CreateToggle({Name="C",CurrentValue=oceanHopRegularSkillC,Callback=function(v) oceanHopRegularSkillC=v end})
 UI.OceanHopRegularSkillV=OceanHopTab:CreateToggle({Name="V",CurrentValue=oceanHopRegularSkillV,Callback=function(v) oceanHopRegularSkillV=v end})
 UI.OceanHopRegularSkillF=OceanHopTab:CreateToggle({Name="F",CurrentValue=oceanHopRegularSkillF,Callback=function(v) oceanHopRegularSkillF=v end})
-
-OceanHopTab:CreateSection("⚡ Fast Farm Vergil (Choose ONE)")
-UI.OceanHopFastToggle=OceanHopTab:CreateToggle({
-    Name="⚡ Fast Farm (Vergil)", CurrentValue=oceanHopFastEnabled,
-    Callback=function(v) oceanHopFastEnabled=v; if v then oceanHopRegularEnabled=false end; oceanHopFastSkillActivated=false end
-})
-UI.OceanHopFastDD=OceanHopTab:CreateDropdown({
-    Name="Tool (Vergil) ⚠️ REQUIRED", Options=getBackpackTools(),
-    CurrentOption=oceanHopFastTool and {oceanHopFastTool} or {},
-    MultipleOptions=false,
-    Callback=function(o) oceanHopFastTool=o[1] end
-})
-OceanHopTab:CreateButton({Name="🔄 Refresh Tools",Callback=function()
-    if UI.OceanHopFastDD then UI.OceanHopFastDD:Refresh(getBackpackTools(),true) end
-end})
-UI.OceanHopFastSkillFInitial=OceanHopTab:CreateToggle({
-    Name="⚡ F Skill (ONCE at start - Vergil)", CurrentValue=oceanHopFastSkillFInitial,
-    Callback=function(v) oceanHopFastSkillFInitial=v end
-})
-
-OceanHopTab:CreateSection("Fast Farm Skills")
-UI.OceanHopFastSkillZ=OceanHopTab:CreateToggle({Name="Z",CurrentValue=oceanHopFastSkillZ,Callback=function(v) oceanHopFastSkillZ=v end})
-UI.OceanHopFastSkillX=OceanHopTab:CreateToggle({Name="X",CurrentValue=oceanHopFastSkillX,Callback=function(v) oceanHopFastSkillX=v end})
-UI.OceanHopFastSkillC=OceanHopTab:CreateToggle({Name="C",CurrentValue=oceanHopFastSkillC,Callback=function(v) oceanHopFastSkillC=v end})
-UI.OceanHopFastSkillV=OceanHopTab:CreateToggle({Name="V",CurrentValue=oceanHopFastSkillV,Callback=function(v) oceanHopFastSkillV=v end})
-UI.OceanHopFastSkillFSystem=OceanHopTab:CreateToggle({Name="F (Spam)",CurrentValue=oceanHopFastSkillFSystem,Callback=function(v) oceanHopFastSkillFSystem=v end})
 
 UI.EventToggle=EventTab:CreateToggle({
     Name="Farm Event", CurrentValue=eventIslandEnabled,
@@ -962,13 +911,6 @@ function updateAllUI()
         if UI.OceanHopRegularSkillC then UI.OceanHopRegularSkillC:Set(oceanHopRegularSkillC) end
         if UI.OceanHopRegularSkillV then UI.OceanHopRegularSkillV:Set(oceanHopRegularSkillV) end
         if UI.OceanHopRegularSkillF then UI.OceanHopRegularSkillF:Set(oceanHopRegularSkillF) end
-        if UI.OceanHopFastToggle then UI.OceanHopFastToggle:Set(oceanHopFastEnabled) end
-        if UI.OceanHopFastSkillFInitial then UI.OceanHopFastSkillFInitial:Set(oceanHopFastSkillFInitial) end
-        if UI.OceanHopFastSkillZ then UI.OceanHopFastSkillZ:Set(oceanHopFastSkillZ) end
-        if UI.OceanHopFastSkillX then UI.OceanHopFastSkillX:Set(oceanHopFastSkillX) end
-        if UI.OceanHopFastSkillC then UI.OceanHopFastSkillC:Set(oceanHopFastSkillC) end
-        if UI.OceanHopFastSkillV then UI.OceanHopFastSkillV:Set(oceanHopFastSkillV) end
-        if UI.OceanHopFastSkillFSystem then UI.OceanHopFastSkillFSystem:Set(oceanHopFastSkillFSystem) end
         
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
         if UI.AutoDeleteSkillEffectToggle then UI.AutoDeleteSkillEffectToggle:Set(autoDeleteSkillEffect) end
@@ -992,7 +934,6 @@ function updateAllUI()
         if UI.OceanHopMUIDD and oceanHopMUITool then UI.OceanHopMUIDD:Set({oceanHopMUITool}) end
         if UI.OceanHopPriorityDD and oceanHopPriorityMob then UI.OceanHopPriorityDD:Set({oceanHopPriorityMob}) end
         if UI.OceanHopRegularDD and oceanHopRegularTool then UI.OceanHopRegularDD:Set({oceanHopRegularTool}) end
-        if UI.OceanHopFastDD and oceanHopFastTool then UI.OceanHopFastDD:Set({oceanHopFastTool}) end
         
         task.wait(0.1)
         
@@ -1008,7 +949,6 @@ function updateAllUI()
         -- Ocean-Hop refresh
         if UI.OceanHopMUIDD then UI.OceanHopMUIDD:Refresh(getBackpackTools(), true) end
         if UI.OceanHopRegularDD then UI.OceanHopRegularDD:Refresh(getBackpackTools(), true) end
-        if UI.OceanHopFastDD then UI.OceanHopFastDD:Refresh(getBackpackTools(), true) end
         if UI.MerchDD then UI.MerchDD:Refresh(getMerchantItems(), true) end
         
         print("✅ UI updated completely!")
@@ -1152,30 +1092,6 @@ local function useOceanHopRegularSkills()
             if oceanHopRegularSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
             if oceanHopRegularSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
             if oceanHopRegularSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
-        end
-    end)
-end
-
-local lastFSkillClick = 0
-local fSkillCooldown = 1 -- 1 second cooldown between F clicks
-
-local function useOceanHopFastSkills()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            if oceanHopFastSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
-            if oceanHopFastSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
-            if oceanHopFastSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
-            if oceanHopFastSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-            -- F skill with cooldown to prevent spam - uses oceanHopFastSkillFSystem
-            if oceanHopFastSkillFSystem and ui["Mobile Button"]:FindFirstChild("F") then
-                local now = tick()
-                if now - lastFSkillClick >= fSkillCooldown then
-                    robustClick(ui["Mobile Button"]["F"])
-                    lastFSkillClick = now
-                    task.wait(0.05)
-                end
-            end
         end
     end)
 end
@@ -1423,9 +1339,6 @@ local function farmOceanHopMob(mob, mode)
     if mode == "regular" then
         if oceanHopRegularTool then forceEquipTool(oceanHopRegularTool) end
         useOceanHopRegularSkills()
-    elseif mode == "fast" then
-        if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-        useOceanHopFastSkills()
     end
 end
 
@@ -1547,127 +1460,6 @@ task.spawn(function()
             end
         
         -- Fast Farm Mode (Vergil)
-        elseif oceanHopFastEnabled and not oceanHopRegularEnabled then
-            local mobs = {}
-            pcall(function()
-                if workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean") then
-                    for _,mob in pairs(workspace.Mobs.Ocean:GetChildren()) do
-                        if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
-                            table.insert(mobs, mob)
-                        end
-                    end
-                end
-            end)
-            
-            if #mobs > 0 then
-                -- FAST FARM SEQUENCE: Vergil F → MUI → Vergil Farm
-                if not oceanHopFastSkillActivated then
-                    print("⚡ [OCEAN-HOP] Activating Vergil F skill (initial)...")
-                    if not oceanHopFastTool then
-                        print("❌ [OCEAN-HOP] ERROR: Vergil tool not selected!")
-                        return
-                    end
-                    
-                    if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-                    task.wait(1.5) -- Wait for tool to actually equip
-                    -- Check if tool is equipped
-                    local toolEquipped = false
-                    for _, item in pairs(LocalPlayer.Character:GetChildren()) do
-                        if item.Name == oceanHopFastTool then
-                            toolEquipped = true
-                            break
-                        end
-                    end
-                    
-                    -- DIRECT F click for Vergil - ONCE ONLY
-                    if toolEquipped and oceanHopFastSkillFInitial then
-                        print("⚡ [OCEAN-HOP] Clicking F for Vergil (ONCE)...")
-                        pcall(function()
-                            local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-                            if ui and ui:FindFirstChild("Mobile Button") then
-                                local f=ui["Mobile Button"]:FindFirstChild("F")
-                                if f then
-                                    if firesignal then firesignal(f.MouseButton1Click)
-                                    else f.MouseButton1Click:Fire() end
-                                end
-                            end
-                        end)
-                        task.wait(0.5)
-                    end
-                    task.wait(1)
-                    
-                    print("🛡️ [OCEAN-HOP] Activating MUI immortality (initial)...")
-                    if oceanHopMUIAutoEquip and oceanHopMUITool then
-                        forceEquipTool(oceanHopMUITool)
-                        task.wait(1.5) -- Wait for tool to actually equip
-                        -- Check if MUI is equipped
-                        local muiEquipped = false
-                        for _, item in pairs(LocalPlayer.Character:GetChildren()) do
-                            if item.Name == oceanHopMUITool then
-                                muiEquipped = true
-                                break
-                            end
-                        end
-                        -- DIRECT F click for MUI - ONLY if oceanHopMUISkillF is enabled
-                        if muiEquipped and oceanHopMUISkillF then
-                            print("🛡️ [OCEAN-HOP] MUI F skill activated!")
-                            pcall(function()
-                                local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-                                if ui and ui:FindFirstChild("Mobile Button") then
-                                    local f=ui["Mobile Button"]:FindFirstChild("F")
-                                    if f then robustClick(f) end
-                                end
-                            end)
-                        end
-                        task.wait(1)
-                    end
-                    
-                    -- Switch back to Vergil for farming
-                    if oceanHopFastTool then forceEquipTool(oceanHopFastTool) end
-                    task.wait(1)
-                    oceanHopFastSkillActivated = true
-                end
-                
-                -- Farm with priority if enabled
-                local targetMob = nil
-                if oceanHopPriorityEnabled and oceanHopPriorityMob then
-                    for _, m in pairs(mobs) do
-                        if m.Name == oceanHopPriorityMob then
-                            targetMob = m
-                            break
-                        end
-                    end
-                end
-                
-                -- Farm all mobs (or priority first)
-                if targetMob then
-                    while targetMob and targetMob.Parent and oceanHopFastEnabled do
-                        farmOceanHopMob(targetMob, "fast")
-                        task.wait(0.15)
-                        if not workspace.Mobs.Ocean:FindFirstChild(targetMob.Name) then break end
-                    end
-                end
-                
-                -- Farm remaining mobs
-                for _, mob in pairs(mobs) do
-                    if mob ~= targetMob then
-                        while mob and mob.Parent and oceanHopFastEnabled do
-                            farmOceanHopMob(mob, "fast")
-                            task.wait(0.15)
-                            if not workspace.Mobs.Ocean:FindFirstChild(mob.Name) then break end
-                        end
-                    end
-                end
-            else
-                -- Ocean is empty, server hop
-                print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
-                task.wait(oceanHopServerHopDelay)
-                if oceanHopEnabled then
-                    print("🌐 [OCEAN-HOP] Server hopping...")
-                    oceanHopFastSkillActivated = false
-                    serverHop()
-                end
-            end
         end
     end
 end)
@@ -1779,7 +1571,6 @@ LocalPlayer.CharacterAdded:Connect(function()
     stepsCompleted=false; step2FActivated=false
     isExecutingSteps=false; STEPS_IN_PROGRESS=false
     alreadyAtEventIsland=false
-    oceanHopFastSkillActivated=false -- Reset Ocean-Hop Fast Farm so it restarts from 2 initial steps
     
     -- Re-equip tools only if mobs actually exist
     if oceanMobsEnabled and oceanAutoEquipTool then
