@@ -790,7 +790,8 @@ MiscTab:CreateToggle({
             if btn and btn:FindFirstChild("SETTING") and btn.SETTING:FindFirstChild("ScrollingFrame") then
                 local vfxBtn = btn.SETTING.ScrollingFrame:FindFirstChild("DisableVFX")
                 if vfxBtn and vfxBtn:FindFirstChild("ImageButton") then
-                    robustClick(vfxBtn.ImageButton)
+                    if firesignal then firesignal(vfxBtn.ImageButton.MouseButton1Click)
+                    else vfxBtn.ImageButton.MouseButton1Click:Fire() end
                 end
             end
         end)
@@ -805,7 +806,8 @@ MiscTab:CreateToggle({
             if btn and btn:FindFirstChild("SETTING") and btn.SETTING:FindFirstChild("ScrollingFrame") then
                 local shakeBtn = btn.SETTING.ScrollingFrame:FindFirstChild("CamShake")
                 if shakeBtn and shakeBtn:FindFirstChild("ImageButton") then
-                    robustClick(shakeBtn.ImageButton)
+                    if firesignal then firesignal(shakeBtn.ImageButton.MouseButton1Click)
+                    else shakeBtn.ImageButton.MouseButton1Click:Fire() end
                 end
             end
         end)
