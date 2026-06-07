@@ -874,12 +874,13 @@ function startFly()
     if not hrp or not hum then return end
 
     flyBV=Instance.new("BodyVelocity")
-    flyBV.MaxForce=Vector3.new(1e9,1e9,1e9)
+    flyBV.MaxForce=Vector3.new(9e9,9e9,9e9)
     flyBV.Velocity=Vector3.new(0,0,0)
     flyBV.Parent=hrp
 
     flyBG=Instance.new("BodyGyro")
-    flyBG.MaxTorque=Vector3.new(1e9,1e9,1e9)
+    flyBG.MaxTorque=Vector3.new(9e9,9e9,9e9)
+    flyBG.P=9e4
     flyBG.D=500
     flyBG.CFrame=hrp.CFrame
     flyBG.Parent=hrp
@@ -893,25 +894,19 @@ function startFly()
         local cam=workspace.CurrentCamera
         local md=hum.MoveDirection
         
-        if md.Magnitude > 0 then
-            local camLook = cam.CFrame.LookVector
-            local camRight = cam.CFrame.RightVector
-            
-            local moveVec = Vector3.new(0,0,0)
-            
-            moveVec = moveVec + (camLook * md.Z)
-            moveVec = moveVec + (camRight * md.X)
-            
-            if moveVec.Magnitude > 0 then
-                moveVec = moveVec.Unit
-            end
-            
-            flyBV.Velocity = moveVec * flySpeed
+        -- Forward/Back and Left/Right controls
+        local ctrl_f = md.Z  -- forward/back
+        local ctrl_r = md.X  -- right/left
+        
+        if ctrl_f ~= 0 or ctrl_r ~= 0 then
+            -- Calculate velocity using camera direction
+            flyBV.Velocity = ((cam.CoordinateFrame.lookVector * ctrl_f) + ((cam.CoordinateFrame * CFrame.new(ctrl_r, ctrl_f*0.2, 0).p) - cam.CoordinateFrame.p)) * flySpeed
         else
             flyBV.Velocity = Vector3.new(0, 0, 0)
         end
 
-        flyBG.CFrame = CFrame.new(hrp.Position, hrp.Position + cam.CFrame.LookVector)
+        -- Rotate to face camera direction
+        flyBG.CFrame = cam.CoordinateFrame * CFrame.Angles(-math.rad(ctrl_f*50), 0, 0)
     end)
 end
 
