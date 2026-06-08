@@ -1699,17 +1699,5 @@ LocalPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
--- Auto-load
-if autoLoadConfigName~="" and savedConfigs[autoLoadConfigName] then
-    task.spawn(function()
-        task.wait(3)
-        Rayfield:Notify({
-            Title="Auto-Load ✅",
-            Content="Config '"..autoLoadConfigName.."' loaded!",
-            Duration=4,
-        })
-    end)
-end
-
 print("✅ SJW Premium V19 - QOL UPDATED (No Step 1/4)")
 print("📁 Config folder: "..ConfigFolder)
