@@ -1019,6 +1019,7 @@ function updateAllUI()
             task.wait(0.3)
         end
         if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
+        task.wait(0.1)
         
         if disableCamShake then
             pcall(function()
@@ -1043,6 +1044,7 @@ function updateAllUI()
             task.wait(0.3)
         end
         if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
+        task.wait(0.1)
         
         if UI.SpeedSlider then UI.SpeedSlider:Set(customWalkSpeed) end
         if UI.FlySpeedSlider then UI.FlySpeedSlider:Set(flySpeed) end
