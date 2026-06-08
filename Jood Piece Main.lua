@@ -865,12 +865,12 @@ end})
 -- ================================================
 -- AUTO-LOAD CONFIG AT STARTUP
 -- ================================================
-task.wait(1)
+task.wait(1.5)
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
     task.wait(0.5)
     updateAllUI()
-    print("🔄 Auto-load: "..autoLoadConfigName)
+    Rayfield:Notify({Title="Auto-Load ✅",Content="Config '"..autoLoadConfigName.."' loaded!",Duration=3})
 end
 
 -- ================================================
@@ -960,7 +960,6 @@ end
 -- ================================================
 function updateAllUI()
     task.spawn(function()
-        print("🔄 [DEBUG] updateAllUI started")
         task.wait(0.2)
         
         if UI.AutoFarmToggle then UI.AutoFarmToggle:Set(autofarmEnabled) end
