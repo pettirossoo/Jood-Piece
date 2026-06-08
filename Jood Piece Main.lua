@@ -960,6 +960,7 @@ end
 -- ================================================
 function updateAllUI()
     task.spawn(function()
+        print("🔄 [DEBUG] updateAllUI started")
         task.wait(0.2)
         
         if UI.AutoFarmToggle then UI.AutoFarmToggle:Set(autofarmEnabled) end
