@@ -996,7 +996,6 @@ function updateAllUI()
         
         task.wait(0.5)
         
-        if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
         if disableVFX then
             pcall(function()
                 local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
@@ -1019,8 +1018,8 @@ function updateAllUI()
             end)
             task.wait(0.3)
         end
+        if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
         
-        if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
         if disableCamShake then
             pcall(function()
                 local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
@@ -1043,6 +1042,7 @@ function updateAllUI()
             end)
             task.wait(0.3)
         end
+        if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
         
         if UI.SpeedSlider then UI.SpeedSlider:Set(customWalkSpeed) end
         if UI.FlySpeedSlider then UI.FlySpeedSlider:Set(flySpeed) end
