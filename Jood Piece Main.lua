@@ -993,55 +993,7 @@ function updateAllUI()
         if UI.OceanHopRegularSkillF then UI.OceanHopRegularSkillF:Set(oceanHopRegularSkillF) end
         
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
-        
-        task.wait(0.5)
-        
-        if disableVFX then
-            pcall(function()
-                local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-                if settingGui then
-                    local setting = settingGui:FindFirstChild("SETTING")
-                    if setting then
-                        local scrolling = setting:FindFirstChild("ScrollingFrame")
-                        if scrolling then
-                            local vfx = scrolling:FindFirstChild("DisableVFX")
-                            if vfx then
-                                local imgBtn = vfx:FindFirstChild("ImageButton")
-                                if imgBtn then
-                                    if firesignal then firesignal(imgBtn.MouseButton1Click)
-                                    else imgBtn.MouseButton1Click:Fire() end
-                                end
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-        task.wait(0.5)
         if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
-        
-        if disableCamShake then
-            pcall(function()
-                local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-                if settingGui then
-                    local setting = settingGui:FindFirstChild("SETTING")
-                    if setting then
-                        local scrolling = setting:FindFirstChild("ScrollingFrame")
-                        if scrolling then
-                            local camshake = scrolling:FindFirstChild("CamShake")
-                            if camshake then
-                                local imgBtn = camshake:FindFirstChild("ImageButton")
-                                if imgBtn then
-                                    if firesignal then firesignal(imgBtn.MouseButton1Click)
-                                    else imgBtn.MouseButton1Click:Fire() end
-                                end
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-        task.wait(0.5)
         if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
         
         if UI.SpeedSlider then UI.SpeedSlider:Set(customWalkSpeed) end
