@@ -874,9 +874,9 @@ end})
 task.wait(0.5)
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
-    task.wait(0.5)
-    updateAllUI()
-    Rayfield:Notify({Title="Auto-Load ✅",Content="Config '"..autoLoadConfigName.."' loaded!",Duration=3})
+    task.wait(0.5) -- Wait for variables to apply
+    updateAllUI() -- Now update the UI
+    Rayfield:Notify({Title="Auto-Load ✅", Content=autoLoadConfigName, Duration=3})
 end
 
 -- ================================================
