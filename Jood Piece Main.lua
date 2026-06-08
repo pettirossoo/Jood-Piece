@@ -786,7 +786,7 @@ MiscTab:CreateToggle({
 
 MiscTab:CreateSection("⚡ Graphics Settings")
 UI.DisableVFXToggle = MiscTab:CreateToggle({
-    Name="Disable VFX", CurrentValue=false,
+    Name="Disable VFX", CurrentValue=disableVFX,
     Callback=function(v)
         disableVFX = v
         print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
@@ -825,7 +825,7 @@ UI.DisableVFXToggle = MiscTab:CreateToggle({
 })
 
 UI.DisableCamShakeToggle = MiscTab:CreateToggle({
-    Name="Disable Cam Shake", CurrentValue=false,
+    Name="Disable Cam Shake", CurrentValue=disableCamShake,
     Callback=function(v)
         disableCamShake = v
         print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
