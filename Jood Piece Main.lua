@@ -320,12 +320,7 @@ local function applyVariables(s)
 end
 
 loadConfigFromFile()
-if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
-    applyVariables(savedConfigs[autoLoadConfigName])
-    task.wait(0.5)
-    updateAllUI()
-    print("🔄 Auto-load: "..autoLoadConfigName)
-end
+-- Autoload moved after Rayfield creation
 
 -- ================================================
 -- SECTION 4: RAYFIELD
@@ -866,6 +861,17 @@ MiscTab:CreateSection("🔧 Extra")
 MiscTab:CreateButton({Name="Rejoin",Callback=function()
     game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
 end})
+
+-- ================================================
+-- AUTO-LOAD CONFIG AT STARTUP
+-- ================================================
+task.wait(1)
+if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
+    applyVariables(savedConfigs[autoLoadConfigName])
+    task.wait(0.5)
+    updateAllUI()
+    print("🔄 Auto-load: "..autoLoadConfigName)
+end
 
 -- ================================================
 -- SECTION 14: FLY (COMPLETELY FIXED - ABSOLUTE DIRECTION)
