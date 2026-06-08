@@ -322,6 +322,8 @@ end
 loadConfigFromFile()
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
+    task.wait(0.5)
+    updateAllUI()
     print("🔄 Auto-load: "..autoLoadConfigName)
 end
 
