@@ -785,6 +785,7 @@ MiscTab:CreateSection("⚡ Graphics Settings")
 MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=false,
     Callback=function(v)
+        disableVFX = v
         print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
@@ -818,33 +819,47 @@ MiscTab:CreateToggle({
         end)
     end,
 })
-
-MiscTab:CreateToggle({
-    Name="Disable Cam Shake", CurrentValue=false,
+UI.DisableVFXToggle = MiscTab:CreateToggle({
+    Name="Disable VFX", CurrentValue=disableVFX,
     Callback=function(v)
-        print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
+        disableVFX = v
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
-            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
-                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
-                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
-                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
-                    
+                    if scrolling then
+                        local vfx = scrolling:FindFirstChild("DisableVFX")
+                        if vfx then
+                            local imgBtn = vfx:FindFirstChild("ImageButton")
+                            if imgBtn then
+                                if firesignal then firesignal(imgBtn.MouseButton1Click)
+                                else imgBtn.MouseButton1Click:Fire() end
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end,
+})
+
+UI.DisableCamShakeToggle = MiscTab:CreateToggle({
+    Name="Disable Cam Shake", CurrentValue=disableCamShake,
+    Callback=function(v)
+        disableCamShake = v
+        pcall(function()
+            local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            if settingGui then
+                local setting = settingGui:FindFirstChild("SETTING")
+                if setting then
+                    local scrolling = setting:FindFirstChild("ScrollingFrame")
                     if scrolling then
                         local camshake = scrolling:FindFirstChild("CamShake")
-                        print("🔍 [DEBUG] CamShake found: "..tostring(camshake ~= nil))
-                        
                         if camshake then
                             local imgBtn = camshake:FindFirstChild("ImageButton")
-                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
-                            
                             if imgBtn then
-                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                             end
@@ -989,7 +1004,8 @@ function updateAllUI()
         if UI.OceanHopRegularSkillF then UI.OceanHopRegularSkillF:Set(oceanHopRegularSkillF) end
         
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
-        if UI.AutoDeleteSkillEffectToggle then UI.AutoDeleteSkillEffectToggle:Set(autoDeleteSkillEffect) end
+        if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
+        if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
         
         if UI.SpeedSlider then UI.SpeedSlider:Set(customWalkSpeed) end
         if UI.FlySpeedSlider then UI.FlySpeedSlider:Set(flySpeed) end
