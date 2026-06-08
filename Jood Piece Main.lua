@@ -322,10 +322,10 @@ end
 loadConfigFromFile()
 
 -- ================================================
--- AUTO-LOAD CONFIG (before Rayfield so autoLoadConfigName is loaded)
+-- AUTO-LOAD CONFIG (load variables before Rayfield)
 -- ================================================
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
-    -- Will apply UI after Rayfield is created
+    applyVariables(savedConfigs[autoLoadConfigName])
 end
 
 -- ================================================
@@ -867,17 +867,6 @@ MiscTab:CreateSection("🔧 Extra")
 MiscTab:CreateButton({Name="Rejoin",Callback=function()
     game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
 end})
-
--- ================================================
--- AUTO-LOAD CONFIG EXECUTION (after Rayfield created)
--- ================================================
-task.wait(0.5)
-if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
-    applyVariables(savedConfigs[autoLoadConfigName])
-    task.wait(0.5) -- Wait for variables to apply
-    updateAllUI() -- Now update the UI
-    Rayfield:Notify({Title="Auto-Load ✅", Content=autoLoadConfigName, Duration=3})
-end
 
 -- ================================================
 -- SECTION 14: FLY (COMPLETELY FIXED - ABSOLUTE DIRECTION)
