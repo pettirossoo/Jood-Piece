@@ -320,7 +320,13 @@ local function applyVariables(s)
 end
 
 loadConfigFromFile()
--- Autoload moved after Rayfield creation
+
+-- ================================================
+-- AUTO-LOAD CONFIG (before Rayfield so autoLoadConfigName is loaded)
+-- ================================================
+if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
+    -- Will apply UI after Rayfield is created
+end
 
 -- ================================================
 -- SECTION 4: RAYFIELD
@@ -863,9 +869,9 @@ MiscTab:CreateButton({Name="Rejoin",Callback=function()
 end})
 
 -- ================================================
--- AUTO-LOAD CONFIG AT STARTUP
+-- AUTO-LOAD CONFIG EXECUTION (after Rayfield created)
 -- ================================================
-task.wait(1.5)
+task.wait(0.5)
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
     task.wait(0.5)
