@@ -785,6 +785,7 @@ MiscTab:CreateSection("⚡ Graphics Settings")
 MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=false,
     Callback=function(v)
+        disableVFX = v
         print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
@@ -823,6 +824,7 @@ MiscTab:CreateToggle({
 MiscTab:CreateToggle({
     Name="Disable Cam Shake", CurrentValue=false,
     Callback=function(v)
+        disableCamShake = v
         print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
