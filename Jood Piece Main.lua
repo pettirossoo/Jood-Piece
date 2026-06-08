@@ -782,7 +782,7 @@ MiscTab:CreateToggle({
 })
 
 MiscTab:CreateSection("⚡ Graphics Settings")
-MiscTab:CreateToggle({
+UI.DisableVFXToggle = MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=false,
     Callback=function(v)
         disableVFX = v
@@ -821,7 +821,7 @@ MiscTab:CreateToggle({
     end,
 })
 
-MiscTab:CreateToggle({
+UI.DisableCamShakeToggle = MiscTab:CreateToggle({
     Name="Disable Cam Shake", CurrentValue=false,
     Callback=function(v)
         disableCamShake = v
