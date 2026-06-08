@@ -782,43 +782,6 @@ MiscTab:CreateToggle({
 })
 
 MiscTab:CreateSection("⚡ Graphics Settings")
-MiscTab:CreateToggle({
-    Name="Disable VFX", CurrentValue=false,
-    Callback=function(v)
-        disableVFX = v
-        print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
-        pcall(function()
-            local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
-            
-            if settingGui then
-                local setting = settingGui:FindFirstChild("SETTING")
-                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
-                
-                if setting then
-                    local scrolling = setting:FindFirstChild("ScrollingFrame")
-                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
-                    
-                    if scrolling then
-                        local vfx = scrolling:FindFirstChild("DisableVFX")
-                        print("🔍 [DEBUG] DisableVFX found: "..tostring(vfx ~= nil))
-                        
-                        if vfx then
-                            local imgBtn = vfx:FindFirstChild("ImageButton")
-                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
-                            
-                            if imgBtn then
-                                print("✅ [DEBUG] Clicking ImageButton...")
-                                if firesignal then firesignal(imgBtn.MouseButton1Click)
-                                else imgBtn.MouseButton1Click:Fire() end
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    end,
-})
 UI.DisableVFXToggle = MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=disableVFX,
     Callback=function(v)
