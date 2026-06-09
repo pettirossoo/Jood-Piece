@@ -44,6 +44,16 @@ local mainFarmPaused                       = false
 local eventIslandEnabled, eventAutoEquipTool = false, nil
 local alreadyAtEventIsland  = false
 
+local islandFarmEnabled      = false
+local selectedIslandMob      = nil
+local islandAutoEquipTool    = nil
+local islandAutoEquip        = false
+local islandSkillZ           = false
+local islandSkillX           = false
+local islandSkillC           = false
+local islandSkillV           = false
+local islandSkillF           = false
+
 -- ========== OCEAN-HOP VARIABLES ==========
 local oceanHopEnabled              = false
 -- MUI Section (Immortality)
@@ -178,6 +188,36 @@ local function getMerchantItems()
     return #items>0 and items or {"No items"}
 end
 
+local function getIslandMobs()
+    local mobs = {}
+    pcall(function()
+        if workspace:FindFirstChild("Mobs") then
+            local mobsFolder = workspace.Mobs
+            for _, islandFolder in pairs(mobsFolder:GetChildren()) do
+                -- Skip Ocean since it has its own tab
+                if islandFolder.Name == "Ocean" then continue end
+                if islandFolder:IsA("Folder") then
+                    for _, mob in pairs(islandFolder:GetChildren()) do
+                        if mob:IsA("Model") then
+                            table.insert(mobs, mob.Name)
+                        end
+                    end
+                end
+            end
+        end
+    end)
+    -- Remove duplicates
+    local uniqueMobs = {}
+    local seen = {}
+    for _, mobName in pairs(mobs) do
+        if not seen[mobName] then
+            seen[mobName] = true
+            table.insert(uniqueMobs, mobName)
+        end
+    end
+    return #uniqueMobs > 0 and uniqueMobs or {"No mobs"}
+end
+
 -- ================================================
 -- SECTION 3: CONFIG SYSTEM
 -- ================================================
@@ -259,6 +299,15 @@ local function getCurrentSettings()
         oceanHopRegularSkillC = oceanHopRegularSkillC,
         oceanHopRegularSkillV = oceanHopRegularSkillV,
         oceanHopRegularSkillF = oceanHopRegularSkillF,
+        islandFarmEnabled     = islandFarmEnabled,
+        selectedIslandMob     = selectedIslandMob,
+        islandAutoEquipTool   = islandAutoEquipTool,
+        islandAutoEquip       = islandAutoEquip,
+        islandSkillZ          = islandSkillZ,
+        islandSkillX          = islandSkillX,
+        islandSkillC          = islandSkillC,
+        islandSkillV          = islandSkillV,
+        islandSkillF          = islandSkillF,
     }
 end
 
@@ -315,6 +364,15 @@ local function applyVariables(s)
     oceanHopRegularSkillC = s.oceanHopRegularSkillC ~= nil and s.oceanHopRegularSkillC or false
     oceanHopRegularSkillV = s.oceanHopRegularSkillV ~= nil and s.oceanHopRegularSkillV or false
     oceanHopRegularSkillF = s.oceanHopRegularSkillF ~= nil and s.oceanHopRegularSkillF or false
+    islandFarmEnabled     = s.islandFarmEnabled or false
+    selectedIslandMob     = s.selectedIslandMob
+    islandAutoEquipTool   = s.islandAutoEquipTool
+    islandAutoEquip       = s.islandAutoEquip or false
+    islandSkillZ          = s.islandSkillZ ~= nil and s.islandSkillZ or false
+    islandSkillX          = s.islandSkillX ~= nil and s.islandSkillX or false
+    islandSkillC          = s.islandSkillC ~= nil and s.islandSkillC or false
+    islandSkillV          = s.islandSkillV ~= nil and s.islandSkillV or false
+    islandSkillF          = s.islandSkillF ~= nil and s.islandSkillF or false
     mainFarmPaused        = false
     print("✅ Variables applied")
 end
@@ -350,6 +408,7 @@ local Window = Rayfield:CreateWindow({
 -- SECTION 5: TABS
 -- ================================================
 local ConfigTab = Window:CreateTab("💾 Config",    nil)
+local IslandTab = Window:CreateTab("🏝️ Island Farm", nil)
 local BossTab   = Window:CreateTab("👹 Boss",      nil)
 local OceanTab  = Window:CreateTab("🌊 Ocean",     nil)
 local OceanHopTab = Window:CreateTab("🔄 Ocean-Hop", nil)
@@ -458,6 +517,43 @@ ConfigTab:CreateSection("Info")
 ConfigTab:CreateLabel("Config folder: "..ConfigFolder)
 ConfigTab:CreateLabel("Files are JSON format")
 ConfigTab:CreateLabel("Located in game directory")
+
+-- ================================================
+-- SECTION 6.5: ISLAND FARM TAB
+-- ================================================
+IslandTab:CreateButton({Name="🔄 Refresh Mobs", Callback=function()
+    if UI.IslandMobDD then UI.IslandMobDD:Refresh(getIslandMobs(), true) end
+end})
+
+UI.IslandMobDD = IslandTab:CreateDropdown({
+    Name="Mob", Options=getIslandMobs(),
+    CurrentOption=selectedIslandMob and {selectedIslandMob} or {},
+    MultipleOptions=false,
+    Callback=function(o) selectedIslandMob=o[1] end
+})
+
+IslandTab:CreateButton({Name="🔄 Refresh Tools", Callback=function()
+    if UI.IslandToolDD then UI.IslandToolDD:Refresh(getBackpackTools(), true) end
+end})
+
+UI.IslandToolDD = IslandTab:CreateDropdown({
+    Name="Tool", Options=getBackpackTools(),
+    CurrentOption=islandAutoEquipTool and {islandAutoEquipTool} or {},
+    MultipleOptions=false,
+    Callback=function(o) islandAutoEquipTool=o[1] end
+})
+
+UI.IslandAutoEquipToggle = IslandTab:CreateToggle({
+    Name="Auto Equip Tool", CurrentValue=islandAutoEquip,
+    Callback=function(v) islandAutoEquip=v end
+})
+
+IslandTab:CreateSection("Island Farm Skills")
+UI.IslandSkillZ=IslandTab:CreateToggle({Name="Z",CurrentValue=islandSkillZ,Callback=function(v) islandSkillZ=v end})
+UI.IslandSkillX=IslandTab:CreateToggle({Name="X",CurrentValue=islandSkillX,Callback=function(v) islandSkillX=v end})
+UI.IslandSkillC=IslandTab:CreateToggle({Name="C",CurrentValue=islandSkillC,Callback=function(v) islandSkillC=v end})
+UI.IslandSkillV=IslandTab:CreateToggle({Name="V",CurrentValue=islandSkillV,Callback=function(v) islandSkillV=v end})
+UI.IslandSkillF=IslandTab:CreateToggle({Name="F",CurrentValue=islandSkillF,Callback=function(v) islandSkillF=v end})
 
 -- ================================================
 -- SECTION 7: BOSS TAB
@@ -1721,6 +1817,6 @@ if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
-        Rayfield:Notify({Title="Config Caricata ✅", Content=autoLoadConfigName, Duration=3})
+        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=2})
     end)
 end
