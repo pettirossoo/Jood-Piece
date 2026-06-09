@@ -1,4 +1,4 @@
--- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - NO STEP1/STEP4 + AUTOLOAD/UI FIX) //
+-- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - NO STEP1/STEP4) //
 local Players       = game:GetService("Players")
 local RunService    = game:GetService("RunService")
 local VirtualUser   = game:GetService("VirtualUser")
@@ -61,9 +61,7 @@ local oceanHopRegularSkillX        = false
 local oceanHopRegularSkillC        = false
 local oceanHopRegularSkillV        = false
 local oceanHopRegularSkillF        = false
--- Fast Farm (Vergil) - REMOVED/UNUSED vars patched to prevent errors
-local oceanHopFastEnabled          = false
-local oceanHopFastSkillActivated   = false
+-- Fast Farm (Vergil) - REMOVED
 local oceanHopServerHopDelay       = 4
 
 local selectedTitle            = nil
@@ -79,8 +77,7 @@ local customWalkSpeed          = 16
 local speedLoopEnabled         = false
 local disableVFX               = false
 local disableCamShake          = false
-local autoDeleteSkillEffect    = false -- MISSING VARIABLE ADDED
-local flyBV, flyBG, flyConn    = nil, nil, nil
+local flyBV, flyBG, flyConn   = nil, nil, nil
 
 local savedConfigs       = {}
 local currentConfigName  = ""
@@ -247,7 +244,6 @@ local function getCurrentSettings()
         speedLoopEnabled      = speedLoopEnabled,
         disableVFX            = disableVFX,
         disableCamShake       = disableCamShake,
-        autoDeleteSkillEffect = autoDeleteSkillEffect,
         followDistance        = followDistance,
         attackRange           = attackRange,
         oceanHopEnabled       = oceanHopEnabled,
@@ -306,7 +302,6 @@ local function applyVariables(s)
     speedLoopEnabled      = s.speedLoopEnabled   or false
     disableVFX            = s.disableVFX         or false
     disableCamShake       = s.disableCamShake    or false
-    autoDeleteSkillEffect = s.autoDeleteSkillEffect or false
     oceanHopEnabled       = s.oceanHopEnabled    or false
     oceanHopMUITool       = s.oceanHopMUITool
     oceanHopMUIAutoEquip  = s.oceanHopMUIAutoEquip or false
@@ -324,6 +319,22 @@ local function applyVariables(s)
     print("✅ Variables applied")
 end
 
+loadConfigFromFile()
+
+-- Refresh config dropdowns after loading from file
+task.spawn(function()
+    task.wait(2) -- Wait for Rayfield UI to be created
+    if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
+    if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
+end)
+
+-- ================================================
+-- AUTO-LOAD CONFIG (load variables before Rayfield)
+-- ================================================
+if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
+    applyVariables(savedConfigs[autoLoadConfigName])
+end
+
 -- ================================================
 -- SECTION 4: RAYFIELD
 -- ================================================
@@ -338,16 +349,16 @@ local Window = Rayfield:CreateWindow({
 -- ================================================
 -- SECTION 5: TABS
 -- ================================================
-local ConfigTab   = Window:CreateTab("💾 Config",    nil)
-local BossTab     = Window:CreateTab("👹 Boss",      nil)
-local OceanTab    = Window:CreateTab("🌊 Ocean",     nil)
+local ConfigTab = Window:CreateTab("💾 Config",    nil)
+local BossTab   = Window:CreateTab("👹 Boss",      nil)
+local OceanTab  = Window:CreateTab("🌊 Ocean",     nil)
 local OceanHopTab = Window:CreateTab("🔄 Ocean-Hop", nil)
-local EventTab    = Window:CreateTab("🎪 Event",     nil)
-local TitleTab    = Window:CreateTab("👑 Title",     nil)
-local GuarTab     = Window:CreateTab("🎁 Guarantee", nil)
-local MerchTab    = Window:CreateTab("🛒 Merchant",  nil)
-local InvTab      = Window:CreateTab("📦 Inventory", nil)
-local MiscTab     = Window:CreateTab("⚙️ Misc",      nil)
+local EventTab  = Window:CreateTab("🎪 Event",     nil)
+local TitleTab  = Window:CreateTab("👑 Title",     nil)
+local GuarTab   = Window:CreateTab("🎁 Guarantee", nil)
+local MerchTab  = Window:CreateTab("🛒 Merchant",  nil)
+local InvTab    = Window:CreateTab("📦 Inventory", nil)
+local MiscTab   = Window:CreateTab("⚙️ Misc",      nil)
 
 -- ================================================
 -- SECTION 6: CONFIG TAB
@@ -860,12 +871,6 @@ UI.DisableCamShakeToggle = MiscTab:CreateToggle({
 })
 
 MiscTab:CreateSection("🔧 Extra")
-
-UI.AutoDeleteSkillEffectToggle = MiscTab:CreateToggle({
-    Name="Auto-Delete SkillEffect", CurrentValue=autoDeleteSkillEffect,
-    Callback=function(v) autoDeleteSkillEffect=v end,
-})
-
 MiscTab:CreateButton({Name="Rejoin",Callback=function()
     game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
 end})
@@ -1000,14 +1005,13 @@ function updateAllUI()
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
         if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
         if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
-        if UI.AutoDeleteSkillEffectToggle then UI.AutoDeleteSkillEffectToggle:Set(autoDeleteSkillEffect) end
         
         if UI.SpeedSlider then UI.SpeedSlider:Set(customWalkSpeed) end
         if UI.FlySpeedSlider then UI.FlySpeedSlider:Set(flySpeed) end
         
         task.wait(0.1)
         
-        -- Set dropdown values
+        -- Set dropdown values (format: {value})
         if UI.BossDD and selectedBoss then UI.BossDD:Set({selectedBoss}) end
         if UI.Step2DD and step2Tool then UI.Step2DD:Set({step2Tool}) end
         if UI.Step3DD and step3Tool then UI.Step3DD:Set({step3Tool}) end
@@ -1188,8 +1192,7 @@ local function useSkillF()
         local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
         if ui and ui:FindFirstChild("Mobile Button") then
             local f=ui["Mobile Button"]:FindFirstChild("F")
-            -- BUG RISOLTO: Prima usava 'ticketClick(f)' che non esiste e rompeva lo script
-            if f then robustClick(f); task.wait(0.1) end
+            if f then ticketClick(f); task.wait(0.1) end
         end
     end)
 end
@@ -1702,9 +1705,14 @@ print("✅ SJW Premium V19 - QOL UPDATED (No Step 1/4)")
 print("📁 Config folder: "..ConfigFolder)
 
 -- ================================================
--- SYSTEM AUTO-LOAD (Spostato alla fine per fixare UI Sync)
+-- SYSTEM AUTO-LOAD
 -- ================================================
 loadConfigFromFile()
+
+-- Refresh dropdowns after loading configs
+task.wait(0.5)
+if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
+if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
 
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
