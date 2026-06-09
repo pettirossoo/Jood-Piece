@@ -521,6 +521,11 @@ ConfigTab:CreateLabel("Located in game directory")
 -- ================================================
 -- SECTION 6.5: ISLAND FARM TAB
 -- ================================================
+UI.IslandFarmToggle = IslandTab:CreateToggle({
+    Name="Start Farm", CurrentValue=islandFarmEnabled,
+    Callback=function(v) islandFarmEnabled=v end
+})
+
 IslandTab:CreateButton({Name="🔄 Refresh Mobs", Callback=function()
     if UI.IslandMobDD then UI.IslandMobDD:Refresh(getIslandMobs(), true) end
 end})
@@ -1063,6 +1068,13 @@ function updateAllUI()
         if UI.AutoFarmToggle then UI.AutoFarmToggle:Set(autofarmEnabled) end
         if UI.OceanToggle then UI.OceanToggle:Set(oceanMobsEnabled) end
         if UI.EventToggle then UI.EventToggle:Set(eventIslandEnabled) end
+        if UI.IslandFarmToggle then UI.IslandFarmToggle:Set(islandFarmEnabled) end
+        if UI.IslandAutoEquipToggle then UI.IslandAutoEquipToggle:Set(islandAutoEquip) end
+        if UI.IslandSkillZ then UI.IslandSkillZ:Set(islandSkillZ) end
+        if UI.IslandSkillX then UI.IslandSkillX:Set(islandSkillX) end
+        if UI.IslandSkillC then UI.IslandSkillC:Set(islandSkillC) end
+        if UI.IslandSkillV then UI.IslandSkillV:Set(islandSkillV) end
+        if UI.IslandSkillF then UI.IslandSkillF:Set(islandSkillF) end
         if UI.GuarToggle then UI.GuarToggle:Set(guaranteeEnabled) end
         if UI.MerchToggle then UI.MerchToggle:Set(merchantEnabled) end
         if UI.InvToggle then UI.InvToggle:Set(inventoryEnabled) end
@@ -1121,6 +1133,8 @@ function updateAllUI()
         if UI.OceanHopMUIDD and oceanHopMUITool then UI.OceanHopMUIDD:Set({oceanHopMUITool}) end
         if UI.OceanHopPriorityDD and oceanHopPriorityMob then UI.OceanHopPriorityDD:Set({oceanHopPriorityMob}) end
         if UI.OceanHopRegularDD and oceanHopRegularTool then UI.OceanHopRegularDD:Set({oceanHopRegularTool}) end
+        if UI.IslandMobDD and selectedIslandMob then UI.IslandMobDD:Set({selectedIslandMob}) end
+        if UI.IslandToolDD and islandAutoEquipTool then UI.IslandToolDD:Set({islandAutoEquipTool}) end
         
         task.wait(0.1)
         
@@ -1136,6 +1150,8 @@ function updateAllUI()
         -- Ocean-Hop refresh
         if UI.OceanHopMUIDD then UI.OceanHopMUIDD:Refresh(getBackpackTools(), true) end
         if UI.OceanHopRegularDD then UI.OceanHopRegularDD:Refresh(getBackpackTools(), true) end
+        if UI.IslandMobDD then UI.IslandMobDD:Refresh(getIslandMobs(), true) end
+        if UI.IslandToolDD then UI.IslandToolDD:Refresh(getBackpackTools(), true) end
         if UI.MerchDD then UI.MerchDD:Refresh(getMerchantItems(), true) end
         
         print("✅ UI updated completely!")
@@ -1817,6 +1833,6 @@ if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
-        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=2})
+        Rayfield:Notify({Title="Config Caricata ✅", Content=autoLoadConfigName, Duration=3})
     end)
 end
