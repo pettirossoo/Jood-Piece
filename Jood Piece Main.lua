@@ -44,13 +44,6 @@ local mainFarmPaused                       = false
 local eventIslandEnabled, eventAutoEquipTool = false, nil
 local alreadyAtEventIsland  = false
 
--- Farm pause variables (for priority system)
-local oceanFarmPaused       = false
-local bossFarmPaused        = false
-local eventFarmPaused       = false
-local islandFarmPaused      = false
-local oceanHopFarmPaused    = false
-
 local islandFarmEnabled      = false
 local selectedIslandMob      = nil
 local islandAutoEquipTool    = nil
@@ -1446,49 +1439,6 @@ local function executeBossFarmSteps()
 end
 
 -- ================================================
--- SECTION 17.5: FARM PRIORITY MANAGER
--- ================================================
-task.spawn(function()
-    while task.wait(0.1) do
-        -- Reset all pauses
-        oceanFarmPaused = false
-        bossFarmPaused = false
-        eventFarmPaused = false
-        islandFarmPaused = false
-        oceanHopFarmPaused = false
-        
-        -- Priority 1: OCEAN FARM (pauses all others if active)
-        if oceanMobsEnabled then
-            bossFarmPaused = true
-            eventFarmPaused = true
-            islandFarmPaused = true
-            oceanHopFarmPaused = true
-        end
-        
-        -- Priority 2: BOSS FARM (pauses all lower priority if active)
-        if autofarmEnabled and not oceanFarmPaused then
-            eventFarmPaused = true
-            islandFarmPaused = true
-            oceanHopFarmPaused = true
-        end
-        
-        -- Priority 3: EVENT FARM (pauses all lower priority if active)
-        if eventIslandEnabled and not oceanFarmPaused and not bossFarmPaused then
-            islandFarmPaused = true
-            oceanHopFarmPaused = true
-        end
-        
-        -- Priority 4: ISLAND FARM (pauses all lower priority if active)
-        if islandFarmEnabled and not oceanFarmPaused and not bossFarmPaused and not eventFarmPaused then
-            oceanHopFarmPaused = true
-        end
-        
-        -- Priority 5: OCEAN-HOP FARM (lowest priority, paused by all others)
-        -- No additional logic needed
-    end
-end)
-
--- ================================================
 -- SECTION 18: GAME LOOPS
 -- ================================================
 
@@ -1640,7 +1590,7 @@ end
 -- Ocean
 task.spawn(function()
     while task.wait(0.3) do
-        if STEPS_IN_PROGRESS or oceanFarmPaused then continue end
+        if STEPS_IN_PROGRESS then continue end
         if oceanMobsEnabled then
             local mobs={}
             pcall(function()
@@ -1674,7 +1624,7 @@ end)
 -- Ocean-Hop
 task.spawn(function()
     while task.wait(0.3) do
-        if not oceanHopEnabled or STEPS_IN_PROGRESS or oceanHopFarmPaused then continue end
+        if not oceanHopEnabled or STEPS_IN_PROGRESS then continue end
         
         -- Regular Farm Mode
         if oceanHopRegularEnabled and not oceanHopFastEnabled then
@@ -1746,7 +1696,7 @@ end)
 -- Event
 task.spawn(function()
     while task.wait(0.6) do
-        if STEPS_IN_PROGRESS or eventFarmPaused then continue end
+        if STEPS_IN_PROGRESS then continue end
         if eventIslandEnabled and not mainFarmPaused then
             if not alreadyAtEventIsland then
                 pcall(function()
@@ -1775,11 +1725,15 @@ task.spawn(function()
                     end
                 end
             end)
-            for _,mob in pairs(mobs) do
-                while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
-                    farmEventMob(mob); task.wait(0.2)
-                    if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
+            if #mobs > 0 then
+                mainFarmPaused=true
+                for _,mob in pairs(mobs) do
+                    while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                        farmEventMob(mob); task.wait(0.2)
+                        if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
+                    end
                 end
+                mainFarmPaused=false
             end
         end
     end
@@ -1788,7 +1742,7 @@ end)
 -- Island Farm
 task.spawn(function()
     while task.wait(0.3) do
-        if STEPS_IN_PROGRESS or islandFarmPaused then continue end
+        if STEPS_IN_PROGRESS then continue end
         if islandFarmEnabled and selectedIslandMob and not mainFarmPaused then
             local foundMob = nil
             pcall(function()
@@ -1808,6 +1762,7 @@ task.spawn(function()
             end)
             
             if foundMob then
+                mainFarmPaused=true
                 if islandAutoEquip and islandAutoEquipTool then
                     forceEquipTool(islandAutoEquipTool)
                 end
@@ -1828,6 +1783,7 @@ task.spawn(function()
                     useIslandSkills()
                     task.wait(0.2)
                 end
+                mainFarmPaused=false
             end
         end
     end
@@ -1836,7 +1792,7 @@ end)
 -- Boss attack
 task.spawn(function()
     while task.wait(0.2) do
-        if STEPS_IN_PROGRESS or bossFarmPaused then continue end
+        if STEPS_IN_PROGRESS then continue end
         if autofarmEnabled and stepsCompleted and not mainFarmPaused then
             pcall(function()
                 local boss=workspace.Mobs.Ocean:FindFirstChild(selectedBoss)
@@ -1860,7 +1816,7 @@ end)
 -- Boss anchor
 task.spawn(function()
     while task.wait(0.1) do
-        if STEPS_IN_PROGRESS or not autofarmEnabled or not stepsCompleted or mainFarmPaused or bossFarmPaused then continue end
+        if STEPS_IN_PROGRESS or not autofarmEnabled or not stepsCompleted or mainFarmPaused then continue end
         pcall(function()
             local boss=workspace.Mobs.Ocean:FindFirstChild(selectedBoss)
             if boss and boss:FindFirstChild("HumanoidRootPart") then
