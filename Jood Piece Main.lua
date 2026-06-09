@@ -44,16 +44,6 @@ local mainFarmPaused                       = false
 local eventIslandEnabled, eventAutoEquipTool = false, nil
 local alreadyAtEventIsland  = false
 
-local islandFarmEnabled      = false
-local selectedIslandMob      = nil
-local islandAutoEquipTool    = nil
-local islandAutoEquip        = false
-local islandSkillZ           = false
-local islandSkillX           = false
-local islandSkillC           = false
-local islandSkillV           = false
-local islandSkillF           = false
-
 -- ========== OCEAN-HOP VARIABLES ==========
 local oceanHopEnabled              = false
 -- MUI Section (Immortality)
@@ -72,7 +62,7 @@ local oceanHopRegularSkillC        = false
 local oceanHopRegularSkillV        = false
 local oceanHopRegularSkillF        = false
 -- Fast Farm (Vergil) - REMOVED
-local oceanHopServerHopDelay       = 8
+local oceanHopServerHopDelay       = 4
 
 local selectedTitle            = nil
 local guaranteeEnabled         = false
@@ -188,36 +178,6 @@ local function getMerchantItems()
     return #items>0 and items or {"No items"}
 end
 
-local function getIslandMobs()
-    local mobs = {}
-    pcall(function()
-        if workspace:FindFirstChild("Mobs") then
-            local mobsFolder = workspace.Mobs
-            for _, islandFolder in pairs(mobsFolder:GetChildren()) do
-                -- Skip Ocean since it has its own tab
-                if islandFolder.Name == "Ocean" then continue end
-                if islandFolder:IsA("Folder") then
-                    for _, mob in pairs(islandFolder:GetChildren()) do
-                        if mob:IsA("Model") then
-                            table.insert(mobs, mob.Name)
-                        end
-                    end
-                end
-            end
-        end
-    end)
-    -- Remove duplicates
-    local uniqueMobs = {}
-    local seen = {}
-    for _, mobName in pairs(mobs) do
-        if not seen[mobName] then
-            seen[mobName] = true
-            table.insert(uniqueMobs, mobName)
-        end
-    end
-    return #uniqueMobs > 0 and uniqueMobs or {"No mobs"}
-end
-
 -- ================================================
 -- SECTION 3: CONFIG SYSTEM
 -- ================================================
@@ -299,15 +259,6 @@ local function getCurrentSettings()
         oceanHopRegularSkillC = oceanHopRegularSkillC,
         oceanHopRegularSkillV = oceanHopRegularSkillV,
         oceanHopRegularSkillF = oceanHopRegularSkillF,
-        islandFarmEnabled     = islandFarmEnabled,
-        selectedIslandMob     = selectedIslandMob,
-        islandAutoEquipTool   = islandAutoEquipTool,
-        islandAutoEquip       = islandAutoEquip,
-        islandSkillZ          = islandSkillZ,
-        islandSkillX          = islandSkillX,
-        islandSkillC          = islandSkillC,
-        islandSkillV          = islandSkillV,
-        islandSkillF          = islandSkillF,
     }
 end
 
@@ -364,15 +315,6 @@ local function applyVariables(s)
     oceanHopRegularSkillC = s.oceanHopRegularSkillC ~= nil and s.oceanHopRegularSkillC or false
     oceanHopRegularSkillV = s.oceanHopRegularSkillV ~= nil and s.oceanHopRegularSkillV or false
     oceanHopRegularSkillF = s.oceanHopRegularSkillF ~= nil and s.oceanHopRegularSkillF or false
-    islandFarmEnabled     = s.islandFarmEnabled or false
-    selectedIslandMob     = s.selectedIslandMob
-    islandAutoEquipTool   = s.islandAutoEquipTool
-    islandAutoEquip       = s.islandAutoEquip or false
-    islandSkillZ          = s.islandSkillZ ~= nil and s.islandSkillZ or false
-    islandSkillX          = s.islandSkillX ~= nil and s.islandSkillX or false
-    islandSkillC          = s.islandSkillC ~= nil and s.islandSkillC or false
-    islandSkillV          = s.islandSkillV ~= nil and s.islandSkillV or false
-    islandSkillF          = s.islandSkillF ~= nil and s.islandSkillF or false
     mainFarmPaused        = false
     print("✅ Variables applied")
 end
@@ -408,7 +350,6 @@ local Window = Rayfield:CreateWindow({
 -- SECTION 5: TABS
 -- ================================================
 local ConfigTab = Window:CreateTab("💾 Config",    nil)
-local IslandTab = Window:CreateTab("🏝️ Island Farm", nil)
 local BossTab   = Window:CreateTab("👹 Boss",      nil)
 local OceanTab  = Window:CreateTab("🌊 Ocean",     nil)
 local OceanHopTab = Window:CreateTab("🔄 Ocean-Hop", nil)
@@ -517,48 +458,6 @@ ConfigTab:CreateSection("Info")
 ConfigTab:CreateLabel("Config folder: "..ConfigFolder)
 ConfigTab:CreateLabel("Files are JSON format")
 ConfigTab:CreateLabel("Located in game directory")
-
--- ================================================
--- SECTION 6.5: ISLAND FARM TAB
--- ================================================
-UI.IslandFarmToggle = IslandTab:CreateToggle({
-    Name="Start Farm", CurrentValue=islandFarmEnabled,
-    Callback=function(v) islandFarmEnabled=v end
-})
-
-IslandTab:CreateButton({Name="🔄 Refresh Mobs", Callback=function()
-    if UI.IslandMobDD then UI.IslandMobDD:Refresh(getIslandMobs(), true) end
-end})
-
-UI.IslandMobDD = IslandTab:CreateDropdown({
-    Name="Mob", Options=getIslandMobs(),
-    CurrentOption=selectedIslandMob and {selectedIslandMob} or {},
-    MultipleOptions=false,
-    Callback=function(o) selectedIslandMob=o[1] end
-})
-
-IslandTab:CreateButton({Name="🔄 Refresh Tools", Callback=function()
-    if UI.IslandToolDD then UI.IslandToolDD:Refresh(getBackpackTools(), true) end
-end})
-
-UI.IslandToolDD = IslandTab:CreateDropdown({
-    Name="Tool", Options=getBackpackTools(),
-    CurrentOption=islandAutoEquipTool and {islandAutoEquipTool} or {},
-    MultipleOptions=false,
-    Callback=function(o) islandAutoEquipTool=o[1] end
-})
-
-UI.IslandAutoEquipToggle = IslandTab:CreateToggle({
-    Name="Auto Equip Tool", CurrentValue=islandAutoEquip,
-    Callback=function(v) islandAutoEquip=v end
-})
-
-IslandTab:CreateSection("Island Farm Skills")
-UI.IslandSkillZ=IslandTab:CreateToggle({Name="Z",CurrentValue=islandSkillZ,Callback=function(v) islandSkillZ=v end})
-UI.IslandSkillX=IslandTab:CreateToggle({Name="X",CurrentValue=islandSkillX,Callback=function(v) islandSkillX=v end})
-UI.IslandSkillC=IslandTab:CreateToggle({Name="C",CurrentValue=islandSkillC,Callback=function(v) islandSkillC=v end})
-UI.IslandSkillV=IslandTab:CreateToggle({Name="V",CurrentValue=islandSkillV,Callback=function(v) islandSkillV=v end})
-UI.IslandSkillF=IslandTab:CreateToggle({Name="F",CurrentValue=islandSkillF,Callback=function(v) islandSkillF=v end})
 
 -- ================================================
 -- SECTION 7: BOSS TAB
@@ -697,7 +596,7 @@ UI.OceanHopMUIToggle=OceanHopTab:CreateToggle({
     Name="Auto Equip MUI", CurrentValue=oceanHopMUIAutoEquip,
     Callback=function(v) oceanHopMUIAutoEquip=v end
 })
-OceanHopTab:CreateOceanHopMUISkillF=OceanHopTab:CreateToggle({
+UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
     Name="Activate F (Immortality)", CurrentValue=oceanHopMUISkillF,
     Callback=function(v) oceanHopMUISkillF=v end
 })
@@ -1068,13 +967,6 @@ function updateAllUI()
         if UI.AutoFarmToggle then UI.AutoFarmToggle:Set(autofarmEnabled) end
         if UI.OceanToggle then UI.OceanToggle:Set(oceanMobsEnabled) end
         if UI.EventToggle then UI.EventToggle:Set(eventIslandEnabled) end
-        if UI.IslandFarmToggle then UI.IslandFarmToggle:Set(islandFarmEnabled) end
-        if UI.IslandAutoEquipToggle then UI.IslandAutoEquipToggle:Set(islandAutoEquip) end
-        if UI.IslandSkillZ then UI.IslandSkillZ:Set(islandSkillZ) end
-        if UI.IslandSkillX then UI.IslandSkillX:Set(islandSkillX) end
-        if UI.IslandSkillC then UI.IslandSkillC:Set(islandSkillC) end
-        if UI.IslandSkillV then UI.IslandSkillV:Set(islandSkillV) end
-        if UI.IslandSkillF then UI.IslandSkillF:Set(islandSkillF) end
         if UI.GuarToggle then UI.GuarToggle:Set(guaranteeEnabled) end
         if UI.MerchToggle then UI.MerchToggle:Set(merchantEnabled) end
         if UI.InvToggle then UI.InvToggle:Set(inventoryEnabled) end
@@ -1133,8 +1025,6 @@ function updateAllUI()
         if UI.OceanHopMUIDD and oceanHopMUITool then UI.OceanHopMUIDD:Set({oceanHopMUITool}) end
         if UI.OceanHopPriorityDD and oceanHopPriorityMob then UI.OceanHopPriorityDD:Set({oceanHopPriorityMob}) end
         if UI.OceanHopRegularDD and oceanHopRegularTool then UI.OceanHopRegularDD:Set({oceanHopRegularTool}) end
-        if UI.IslandMobDD and selectedIslandMob then UI.IslandMobDD:Set({selectedIslandMob}) end
-        if UI.IslandToolDD and islandAutoEquipTool then UI.IslandToolDD:Set({islandAutoEquipTool}) end
         
         task.wait(0.1)
         
@@ -1150,8 +1040,6 @@ function updateAllUI()
         -- Ocean-Hop refresh
         if UI.OceanHopMUIDD then UI.OceanHopMUIDD:Refresh(getBackpackTools(), true) end
         if UI.OceanHopRegularDD then UI.OceanHopRegularDD:Refresh(getBackpackTools(), true) end
-        if UI.IslandMobDD then UI.IslandMobDD:Refresh(getIslandMobs(), true) end
-        if UI.IslandToolDD then UI.IslandToolDD:Refresh(getBackpackTools(), true) end
         if UI.MerchDD then UI.MerchDD:Refresh(getMerchantItems(), true) end
         
         print("✅ UI updated completely!")
@@ -1545,7 +1433,6 @@ local function farmOceanHopMob(mob, mode)
     end
 end
 
--- AGGIORNATA: Questa funzione ora si occupa SOLO del movimento
 local function farmEventMob(mob)
     if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
     local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -1559,6 +1446,7 @@ local function farmEventMob(mob)
         elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
         hrp.CFrame=CFrame.new(t.Position+off, t.Position)
     end)
+    useEventSkills()
 end
 
 -- Ocean
@@ -1701,56 +1589,8 @@ task.spawn(function()
             end)
             for _,mob in pairs(mobs) do
                 while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
-                    farmEventMob(mob)  -- 1. Muove il pg
-                    useEventSkills()   -- 2. Controlla i toggle e spara le skill
-                    task.wait(0.2)
+                    farmEventMob(mob); task.wait(0.2)
                     if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
-                end
-            end
-        end
-    end
-end)
-
--- Island Farm
-task.spawn(function()
-    while task.wait(0.3) do
-        if STEPS_IN_PROGRESS then continue end
-        if islandFarmEnabled and selectedIslandMob and not mainFarmPaused then
-            local foundMob = nil
-            pcall(function()
-                if workspace:FindFirstChild("Mobs") then
-                    for _, islandFolder in pairs(workspace.Mobs:GetChildren()) do
-                        -- Skip Ocean since it has its own tab
-                        if islandFolder.Name == "Ocean" then continue end
-                        if islandFolder:IsA("Folder") then
-                            local mob = islandFolder:FindFirstChild(selectedIslandMob)
-                            if mob and mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
-                                foundMob = mob
-                                break
-                            end
-                        end
-                    end
-                end
-            end)
-            
-            if foundMob then
-                if islandAutoEquip and islandAutoEquipTool then
-                    forceEquipTool(islandAutoEquipTool)
-                end
-                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
-                    farmEventMob(foundMob)
-                    -- Use Island Skills (Gestite manualmente qui o aggiungi una funzione dedicata)
-                    pcall(function()
-                        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-                        if ui and ui:FindFirstChild("Mobile Button") then
-                            if islandSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
-                            if islandSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
-                            if islandSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
-                            if islandSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-                            if islandSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
-                        end
-                    end)
-                    task.wait(0.2)
                 end
             end
         end
