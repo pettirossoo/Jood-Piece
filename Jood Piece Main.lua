@@ -697,7 +697,7 @@ UI.OceanHopMUIToggle=OceanHopTab:CreateToggle({
     Name="Auto Equip MUI", CurrentValue=oceanHopMUIAutoEquip,
     Callback=function(v) oceanHopMUIAutoEquip=v end
 })
-UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
+OceanHopTab:CreateOceanHopMUISkillF=OceanHopTab:CreateToggle({
     Name="Activate F (Immortality)", CurrentValue=oceanHopMUISkillF,
     Callback=function(v) oceanHopMUISkillF=v end
 })
@@ -1545,6 +1545,7 @@ local function farmOceanHopMob(mob, mode)
     end
 end
 
+-- AGGIORNATA: Questa funzione ora si occupa SOLO del movimento
 local function farmEventMob(mob)
     if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
     local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -1558,7 +1559,6 @@ local function farmEventMob(mob)
         elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
         hrp.CFrame=CFrame.new(t.Position+off, t.Position)
     end)
-    useEventSkills()
 end
 
 -- Ocean
@@ -1701,7 +1701,9 @@ task.spawn(function()
             end)
             for _,mob in pairs(mobs) do
                 while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
-                    farmEventMob(mob); task.wait(0.2)
+                    farmEventMob(mob)  -- 1. Muove il pg
+                    useEventSkills()   -- 2. Controlla i toggle e spara le skill
+                    task.wait(0.2)
                     if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
                 end
             end
@@ -1737,7 +1739,7 @@ task.spawn(function()
                 end
                 while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
                     farmEventMob(foundMob)
-                    -- Use Island Skills
+                    -- Use Island Skills (Gestite manualmente qui o aggiungi una funzione dedicata)
                     pcall(function()
                         local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
                         if ui and ui:FindFirstChild("Mobile Button") then
