@@ -1728,7 +1728,7 @@ task.spawn(function()
             if #mobs > 0 then
                 mainFarmPaused=true
                 for _,mob in pairs(mobs) do
-                    while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                    while mob and mob.Parent and eventIslandEnabled and not STEPS_IN_PROGRESS do
                         farmEventMob(mob); task.wait(0.2)
                         if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
                     end
@@ -1766,7 +1766,7 @@ task.spawn(function()
                 if islandAutoEquip and islandAutoEquipTool then
                     forceEquipTool(islandAutoEquipTool)
                 end
-                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not STEPS_IN_PROGRESS do
                     -- Position player near mob
                     pcall(function()
                         local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
