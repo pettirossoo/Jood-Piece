@@ -1709,6 +1709,52 @@ task.spawn(function()
     end
 end)
 
+-- Island Farm
+task.spawn(function()
+    while task.wait(0.3) do
+        if STEPS_IN_PROGRESS then continue end
+        if islandFarmEnabled and selectedIslandMob and not mainFarmPaused then
+            local foundMob = nil
+            pcall(function()
+                if workspace:FindFirstChild("Mobs") then
+                    for _, islandFolder in pairs(workspace.Mobs:GetChildren()) do
+                        -- Skip Ocean since it has its own tab
+                        if islandFolder.Name == "Ocean" then continue end
+                        if islandFolder:IsA("Folder") then
+                            local mob = islandFolder:FindFirstChild(selectedIslandMob)
+                            if mob and mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
+                                foundMob = mob
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+            
+            if foundMob then
+                if islandAutoEquip and islandAutoEquipTool then
+                    forceEquipTool(islandAutoEquipTool)
+                end
+                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                    farmEventMob(foundMob)
+                    -- Use Island Skills
+                    pcall(function()
+                        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+                        if ui and ui:FindFirstChild("Mobile Button") then
+                            if islandSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+                            if islandSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+                            if islandSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+                            if islandSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+                            if islandSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+                        end
+                    end)
+                    task.wait(0.2)
+                end
+            end
+        end
+    end
+end)
+
 -- Boss attack
 task.spawn(function()
     while task.wait(0.2) do
