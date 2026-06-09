@@ -1610,10 +1610,18 @@ task.spawn(function()
                 mainFarmPaused=true; alreadyAtEventIsland=false
                 if oceanAutoEquipTool then forceEquipTool(oceanAutoEquipTool) end
                 for _,mob in pairs(mobs) do
+                    local weld = nil
+                    pcall(function()
+                        weld = Instance.new("Weld")
+                        weld.Part0 = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        weld.Part1 = mob:FindFirstChild("HumanoidRootPart")
+                        weld.Parent = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    end)
                     while mob and mob.Parent and oceanMobsEnabled and not STEPS_IN_PROGRESS do
-                        farmOceanMob(mob); task.wait(0.2)
+                        useOceanSkills(); task.wait(0.2)
                         if not workspace.Mobs.Ocean:FindFirstChild(mob.Name) then break end
                     end
+                    if weld then pcall(function() weld:Destroy() end) end
                 end
                 mainFarmPaused=false
             end
@@ -1660,21 +1668,37 @@ task.spawn(function()
                 
                 -- Farm all mobs (or priority first)
                 if targetMob then
+                    local weld = nil
+                    pcall(function()
+                        weld = Instance.new("Weld")
+                        weld.Part0 = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        weld.Part1 = targetMob:FindFirstChild("HumanoidRootPart")
+                        weld.Parent = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    end)
                     while targetMob and targetMob.Parent and oceanHopRegularEnabled do
-                        farmOceanHopMob(targetMob, "regular")
+                        useOceanHopRegularSkills()
                         task.wait(0.2)
                         if not workspace.Mobs.Ocean:FindFirstChild(targetMob.Name) then break end
                     end
+                    if weld then pcall(function() weld:Destroy() end) end
                 end
                 
                 -- Farm remaining mobs
                 for _, mob in pairs(mobs) do
                     if mob ~= targetMob then
+                        local weld = nil
+                        pcall(function()
+                            weld = Instance.new("Weld")
+                            weld.Part0 = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            weld.Part1 = mob:FindFirstChild("HumanoidRootPart")
+                            weld.Parent = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        end)
                         while mob and mob.Parent and oceanHopRegularEnabled do
-                            farmOceanHopMob(mob, "regular")
+                            useOceanHopRegularSkills()
                             task.wait(0.2)
                             if not workspace.Mobs.Ocean:FindFirstChild(mob.Name) then break end
                         end
+                        if weld then pcall(function() weld:Destroy() end) end
                     end
                 end
             else
@@ -1728,10 +1752,18 @@ task.spawn(function()
             if #mobs > 0 then
                 mainFarmPaused=true
                 for _,mob in pairs(mobs) do
+                    local weld = nil
+                    pcall(function()
+                        weld = Instance.new("Weld")
+                        weld.Part0 = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        weld.Part1 = mob:FindFirstChild("HumanoidRootPart")
+                        weld.Parent = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    end)
                     while mob and mob.Parent and eventIslandEnabled and not STEPS_IN_PROGRESS do
-                        farmEventMob(mob); task.wait(0.2)
+                        useEventSkills(); task.wait(0.2)
                         if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
                     end
+                    if weld then pcall(function() weld:Destroy() end) end
                 end
                 mainFarmPaused=false
             end
@@ -1763,26 +1795,21 @@ task.spawn(function()
             
             if foundMob then
                 mainFarmPaused=true
+                local weld = nil
+                pcall(function()
+                    weld = Instance.new("Weld")
+                    weld.Part0 = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    weld.Part1 = foundMob:FindFirstChild("HumanoidRootPart")
+                    weld.Parent = LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                end)
                 if islandAutoEquip and islandAutoEquipTool then
                     forceEquipTool(islandAutoEquipTool)
                 end
                 while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not STEPS_IN_PROGRESS do
-                    -- Position player near mob
-                    pcall(function()
-                        local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                        if hrp and foundMob:FindFirstChild("HumanoidRootPart") then
-                            local t=foundMob.HumanoidRootPart
-                            local off=Vector3.new(0,0,0)
-                            if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
-                            elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
-                            elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
-                            elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
-                            hrp.CFrame=CFrame.new(t.Position+off, t.Position)
-                        end
-                    end)
                     useIslandSkills()
                     task.wait(0.2)
                 end
+                if weld then pcall(function() weld:Destroy() end) end
                 mainFarmPaused=false
             end
         end
@@ -1814,22 +1841,26 @@ task.spawn(function()
 end)
 
 -- Boss anchor
+local bossWeld = nil
 task.spawn(function()
     while task.wait(0.1) do
-        if STEPS_IN_PROGRESS or not autofarmEnabled or not stepsCompleted or mainFarmPaused then continue end
+        if STEPS_IN_PROGRESS or not autofarmEnabled or not stepsCompleted or mainFarmPaused then 
+            if bossWeld then pcall(function() bossWeld:Destroy() end) bossWeld = nil end
+            continue 
+        end
         pcall(function()
             local boss=workspace.Mobs.Ocean:FindFirstChild(selectedBoss)
-            if boss and boss:FindFirstChild("HumanoidRootPart") then
-                local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    local t=boss.HumanoidRootPart
-                    local off=Vector3.new(0,0,0)
-                    if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
-                    elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
-                    elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
-                    elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
-                    hrp.CFrame=CFrame.new(t.Position+off, t.Position)
+            local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            if boss and boss:FindFirstChild("HumanoidRootPart") and hrp then
+                if not bossWeld then
+                    bossWeld = Instance.new("Weld")
+                    bossWeld.Part0 = hrp
+                    bossWeld.Part1 = boss:FindFirstChild("HumanoidRootPart")
+                    bossWeld.Parent = hrp
                 end
+            elseif bossWeld then
+                pcall(function() bossWeld:Destroy() end)
+                bossWeld = nil
             end
         end)
     end
