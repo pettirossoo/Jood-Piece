@@ -1684,14 +1684,21 @@ task.spawn(function()
                 -- Ocean is empty, server hop
                 print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
                 
-                -- Wait for inventory to be completely empty before server hopping
+                -- Wait for inventory to be empty and stay empty for the full delay
+                local serverHopTimer = 0
                 print("⏳ [OCEAN-HOP] Waiting for inventory to empty...")
-                while not isInventoryEmpty() do
+                while serverHopTimer < oceanHopServerHopDelay do
+                    if isInventoryEmpty() then
+                        serverHopTimer = serverHopTimer + 0.2
+                        print("⏳ [OCEAN-HOP] Inventory empty! Timer: "..serverHopTimer.."/"..oceanHopServerHopDelay)
+                    else
+                        serverHopTimer = 0
+                        print("🔄 [OCEAN-HOP] Item detected! Timer reset to 0")
+                    end
                     task.wait(0.2)
                 end
-                print("✅ [OCEAN-HOP] Inventory empty!")
+                print("✅ [OCEAN-HOP] Inventory empty and timer complete!")
                 
-                task.wait(oceanHopServerHopDelay)
                 if oceanHopEnabled then
                     oceanHopFastSkillActivated = false
                     print("🌐 [OCEAN-HOP] Server hopping...")
@@ -1918,6 +1925,6 @@ if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
-        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=3})
+        Rayfield:Notify({Title="Config Caricata ✅", Content=autoLoadConfigName, Duration=3})
     end)
 end
