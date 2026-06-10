@@ -1961,6 +1961,6 @@ if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
-        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=3})
+        Rayfield:Notify({Title="Config Caricata ✅", Content=autoLoadConfigName, Duration=3})
     end)
 end
