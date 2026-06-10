@@ -72,7 +72,7 @@ local oceanHopRegularSkillC        = false
 local oceanHopRegularSkillV        = false
 local oceanHopRegularSkillF        = false
 -- Fast Farm (Vergil) - REMOVED
-local oceanHopServerHopDelay       = 4
+local oceanHopServerHopDelay       = 10
 
 local selectedTitle            = nil
 local guaranteeEnabled         = false
