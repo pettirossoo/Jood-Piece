@@ -87,6 +87,7 @@ local customWalkSpeed          = 16
 local speedLoopEnabled         = false
 local disableVFX               = false
 local disableCamShake          = false
+local fastModeEnabled          = false
 local flyBV, flyBG, flyConn   = nil, nil, nil
 
 local savedConfigs       = {}
@@ -284,6 +285,7 @@ local function getCurrentSettings()
         speedLoopEnabled      = speedLoopEnabled,
         disableVFX            = disableVFX,
         disableCamShake       = disableCamShake,
+        fastModeEnabled       = fastModeEnabled,
         followDistance        = followDistance,
         attackRange           = attackRange,
         oceanHopEnabled       = oceanHopEnabled,
@@ -351,6 +353,7 @@ local function applyVariables(s)
     speedLoopEnabled      = s.speedLoopEnabled   or false
     disableVFX            = s.disableVFX         or false
     disableCamShake       = s.disableCamShake    or false
+    fastModeEnabled       = s.fastModeEnabled    or false
     oceanHopEnabled       = s.oceanHopEnabled    or false
     oceanHopMUITool       = s.oceanHopMUITool
     oceanHopMUIAutoEquip  = s.oceanHopMUIAutoEquip or false
@@ -971,6 +974,38 @@ UI.DisableCamShakeToggle = MiscTab:CreateToggle({
     end,
 })
 
+UI.FastModeToggle = MiscTab:CreateToggle({
+    Name="Fast Mode", CurrentValue=fastModeEnabled,
+    Callback=function(v)
+        fastModeEnabled = v
+        pcall(function()
+            local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            
+            if settingGui then
+                local setting = settingGui:FindFirstChild("SETTING")
+                
+                if setting then
+                    local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    
+                    if scrolling then
+                        local fastMode = scrolling:FindFirstChild("FastMode")
+                        
+                        if fastMode then
+                            local imgBtn = fastMode:FindFirstChild("ImageButton")
+                            
+                            if imgBtn then
+                                if firesignal then firesignal(imgBtn.MouseButton1Click)
+                                else imgBtn.MouseButton1Click:Fire() end
+                                task.wait(0.5)
+                            end
+                        end
+                    end
+                end
+            end
+        end)
+    end,
+})
+
 MiscTab:CreateSection("🔧 Extra")
 MiscTab:CreateButton({Name="Rejoin",Callback=function()
     game:GetService("TeleportService"):Teleport(game.PlaceId, LocalPlayer)
@@ -1113,6 +1148,7 @@ function updateAllUI()
         if UI.SpeedLoopToggle then UI.SpeedLoopToggle:Set(speedLoopEnabled) end
         if UI.DisableVFXToggle then UI.DisableVFXToggle:Set(disableVFX) end
         if UI.DisableCamShakeToggle then UI.DisableCamShakeToggle:Set(disableCamShake) end
+        if UI.FastModeToggle then UI.FastModeToggle:Set(fastModeEnabled) end
         
         if UI.SpeedSlider then UI.SpeedSlider:Set(customWalkSpeed) end
         if UI.FlySpeedSlider then UI.FlySpeedSlider:Set(flySpeed) end
@@ -1925,6 +1961,6 @@ if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
-        Rayfield:Notify({Title="Config Caricata ✅", Content=autoLoadConfigName, Duration=3})
+        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=3})
     end)
 end
