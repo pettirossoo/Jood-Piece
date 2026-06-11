@@ -290,26 +290,26 @@ local function getCurrentSettings()
         attackRange           = attackRange,
         oceanHopEnabled       = oceanHopEnabled,
         oceanHopMUITool       = oceanHopMUITool,
-        oceanHopMUIAutoEquip  = oceanHopMUIAutoEquip,
-        oceanHopMUISkillF     = oceanHopMUISkillF,
-        oceanHopPriorityEnabled = oceanHopPriorityEnabled,
+        oceanHopMUIAutoEquip  = oceanHopMUIAutoEquip or false,
+        oceanHopMUISkillF     = oceanHopMUISkillF or false,
+        oceanHopPriorityEnabled = oceanHopPriorityEnabled or false,
         oceanHopPriorityMob   = oceanHopPriorityMob,
-        oceanHopRegularEnabled = oceanHopRegularEnabled,
+        oceanHopRegularEnabled = oceanHopRegularEnabled or false,
         oceanHopRegularTool   = oceanHopRegularTool,
-        oceanHopRegularSkillZ = oceanHopRegularSkillZ,
-        oceanHopRegularSkillX = oceanHopRegularSkillX,
-        oceanHopRegularSkillC = oceanHopRegularSkillC,
-        oceanHopRegularSkillV = oceanHopRegularSkillV,
-        oceanHopRegularSkillF = oceanHopRegularSkillF,
-        islandFarmEnabled     = islandFarmEnabled,
+        oceanHopRegularSkillZ = oceanHopRegularSkillZ ~= nil and oceanHopRegularSkillZ or false,
+        oceanHopRegularSkillX = oceanHopRegularSkillX ~= nil and oceanHopRegularSkillX or false,
+        oceanHopRegularSkillC = oceanHopRegularSkillC ~= nil and oceanHopRegularSkillC or false,
+        oceanHopRegularSkillV = oceanHopRegularSkillV ~= nil and oceanHopRegularSkillV or false,
+        oceanHopRegularSkillF = oceanHopRegularSkillF ~= nil and oceanHopRegularSkillF or false,
+        islandFarmEnabled     = islandFarmEnabled or false,
         selectedIslandMob     = selectedIslandMob,
         islandAutoEquipTool   = islandAutoEquipTool,
-        islandAutoEquip       = islandAutoEquip,
-        islandSkillZ          = islandSkillZ,
-        islandSkillX          = islandSkillX,
-        islandSkillC          = islandSkillC,
-        islandSkillV          = islandSkillV,
-        islandSkillF          = islandSkillF,
+        islandAutoEquip       = islandAutoEquip or false,
+        islandSkillZ          = islandSkillZ ~= nil and islandSkillZ or false,
+        islandSkillX          = islandSkillX ~= nil and islandSkillX or false,
+        islandSkillC          = islandSkillC ~= nil and islandSkillC or false,
+        islandSkillV          = islandSkillV ~= nil and islandSkillV or false,
+        islandSkillF          = islandSkillF ~= nil and islandSkillF or false,
     }
 end
 
@@ -318,7 +318,7 @@ local function applyVariables(s)
     autofarmEnabled       = s.autofarmEnabled    or false
     selectedBoss          = s.selectedBoss       or "Sung Jinwoo"
     followMode            = s.followMode         or "behind"
-    followDistance        = s.followDistance     or 5
+    followDistance     = s.followDistance     or 5
     attackRange           = s.attackRange        or 12
     step2Tool             = s.step2Tool
     step2FEnabled         = s.step2FEnabled      or false
@@ -705,7 +705,7 @@ UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
     Callback=function(v) oceanHopMUISkillF=v end
 })
 
-OceanHopTab:CreateSection("📍 Regular Farm (Choose ONE)")
+OceanHopTab:CreateSection("🛡️ Regular Farm (Choose ONE)")
 UI.OceanHopRegularToggle=OceanHopTab:CreateToggle({
     Name="Regular Farm", CurrentValue=oceanHopRegularEnabled,
     Callback=function(v) oceanHopRegularEnabled=v end
@@ -1531,32 +1531,61 @@ task.spawn(function()
     end
 end)
 
--- Inventory
+-- Inventory (MODIFIED WITH ONE-TIME AUTO-SYNC FIX)
 task.spawn(function()
+    local hasSynced = false -- Gestione locale del sync per eseguirlo 1 sola volta all'attivazione
+
     while true do
         if inventoryEnabled and not STEPS_IN_PROGRESS then
-            local found=false
-            pcall(function()
-                local g=LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-                if g and g:FindFirstChild("INVENTORY") and g.INVENTORY:FindFirstChild("BackpackFrame") then
-                    for _,f in pairs(g.INVENTORY.BackpackFrame:GetChildren()) do
-                        if f.Name=="UIGridLayout" or f.Name=="UIStroke" then continue end
-                        local btn=f:FindFirstChild("Button")
-                        if btn and btn:FindFirstChild("Amount") then
-                            local n=tonumber(btn.Amount.Text:match("(%d+)"))
-                            if n and n>0 then
-                                found=true
-                                for i=1,math.min(n,15) do
-                                    task.spawn(function() robustClick(btn) end)
+            local plrHud = LocalPlayer.PlayerGui:FindFirstChild("PLR")
+            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+            
+            -- Verifichiamo che i nodi UI fondamentali esistano prima di procedere
+            if plrHud and mainGui then
+                -- Eseguiamo il Sync solo se non è già stato fatto in questa sessione di attivazione
+                if not hasSynced then
+                    local invButton = plrHud.Main:FindFirstChild("INVENTORY")
+                    local invOpenVal = invButton and invButton:FindFirstChild("Open")
+                    
+                    if invOpenVal and invOpenVal.Value == false then
+                        print("🔄 [SYSTEM] Auto-Storage Attivo: Sincronizzazione Iniziale Inventario...")
+                        task.wait(1) -- Pausa di sicurezza anti-glitch per UI in caricamento / Config Auto-Load
+                        robustClick(invButton)
+                        task.wait(1.5) -- Tempo necessario al motore grafico del gioco per istanziare i tool
+                        robustClick(invButton) 
+                        task.wait(0.5)
+                    end
+                    hasSynced = true
+                end
+
+                -- Logica Standard di Spostamento / Storage degli Item
+                local found = false
+                pcall(function()
+                    if mainGui:FindFirstChild("INVENTORY") and mainGui.INVENTORY:FindFirstChild("BackpackFrame") then
+                        for _, f in pairs(mainGui.INVENTORY.BackpackFrame:GetChildren()) do
+                            if f.Name == "UIGridLayout" or f.Name == "UIStroke" then continue end
+                            local btn = f:FindFirstChild("Button")
+                            if btn and btn:FindFirstChild("Amount") then
+                                local n = tonumber(btn.Amount.Text:match("(%d+)"))
+                                if n and n > 0 then
+                                    found = true
+                                    for i = 1, math.min(n, 15) do
+                                        task.spawn(function() robustClick(btn) end)
+                                    end
+                                    task.wait(0.05)
                                 end
-                                task.wait(0.05)
                             end
                         end
                     end
-                end
-            end)
-            task.wait(found and 0.1 or 2)
+                end)
+                task.wait(found and 0.1 or 2)
+            else
+                -- In caso di caricamento iniziale del gioco, attendi che la UI sia istanziata
+                task.wait(1)
+            end
         else
+            -- Se il toggle viene disattivato (o ci sono boss step attivi), resetta il flag di Sync
+            hasSynced = false
             task.wait(1)
         end
     end
