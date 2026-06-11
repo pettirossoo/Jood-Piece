@@ -80,7 +80,6 @@ local selectedGuaranteeItems   = {}
 local merchantEnabled          = false
 local selectedMerchantItems    = {}
 local inventoryEnabled         = false
-local inventorySynced          = false
 
 local flyEnabled, flySpeed     = false, 60
 local noclipEnabled            = false
@@ -281,7 +280,6 @@ local function getCurrentSettings()
         merchantEnabled       = merchantEnabled,
         selectedMerchantItems = selectedMerchantItems,
         inventoryEnabled      = inventoryEnabled,
-        inventorySynced       = inventorySynced,
         flySpeed              = flySpeed,
         customWalkSpeed       = customWalkSpeed,
         speedLoopEnabled      = speedLoopEnabled,
@@ -378,12 +376,18 @@ local function applyVariables(s)
     islandSkillC          = s.islandSkillC ~= nil and s.islandSkillC or false
     islandSkillV          = s.islandSkillV ~= nil and s.islandSkillV or false
     islandSkillF          = s.islandSkillF ~= nil and s.islandSkillF or false
-    inventorySynced       = false
     mainFarmPaused        = false
     print("✅ Variables applied")
 end
 
 loadConfigFromFile()
+
+-- Refresh config dropdowns after loading from file
+task.spawn(function()
+    task.wait(2) -- Wait for Rayfield UI to be created
+    if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
+    if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
+end)
 
 -- ================================================
 -- AUTO-LOAD CONFIG (load variables before Rayfield)
@@ -522,15 +526,7 @@ ConfigTab:CreateLabel("Located in game directory")
 -- ================================================
 UI.IslandFarmToggle = IslandTab:CreateToggle({
     Name="Start Farm", CurrentValue=islandFarmEnabled,
-    Callback=function(v) 
-        islandFarmEnabled=v
-        if v and not inventorySynced then
-            inventorySynced = true
-            task.spawn(function() syncInventory() end)
-        elseif not v and not oceanMobsEnabled and not autofarmEnabled and not eventIslandEnabled and not oceanHopEnabled then
-            inventorySynced = false
-        end
-    end
+    Callback=function(v) islandFarmEnabled=v end
 })
 
 IslandTab:CreateButton({Name="🔄 Refresh Mobs", Callback=function()
@@ -589,13 +585,6 @@ UI.AutoFarmToggle = BossTab:CreateToggle({
         if v then
             stepsCompleted=false; step2FActivated=false
             isExecutingSteps=false; STEPS_IN_PROGRESS=false
-            if not inventorySynced then
-                inventorySynced = true
-                task.spawn(function() syncInventory() end)
-            end
-        end
-        if not oceanMobsEnabled and not eventIslandEnabled and not islandFarmEnabled and not oceanHopEnabled then
-            inventorySynced = false
         end
     end
 })
@@ -649,15 +638,7 @@ UI.SkillF=BossTab:CreateToggle({Name="F",CurrentValue=skillF,Callback=function(v
 -- ================================================
 UI.OceanToggle=OceanTab:CreateToggle({
     Name="Farm Ocean", CurrentValue=oceanMobsEnabled,
-    Callback=function(v) 
-        oceanMobsEnabled=v
-        if v and not inventorySynced then
-            inventorySynced = true
-            task.spawn(function() syncInventory() end)
-        elseif not v and not autofarmEnabled and not eventIslandEnabled and not islandFarmEnabled and not oceanHopEnabled then
-            inventorySynced = false
-        end
-    end
+    Callback=function(v) oceanMobsEnabled=v end
 })
 UI.OceanDD=OceanTab:CreateDropdown({
     Name="Tool", Options=getBackpackTools(),
@@ -679,16 +660,7 @@ UI.OceanSkillF=OceanTab:CreateToggle({Name="F",CurrentValue=oceanSkillF,Callback
 OceanHopTab:CreateSection("🔄 Ocean-Hop Master Control")
 UI.OceanHopToggle=OceanHopTab:CreateToggle({
     Name="🔄 Ocean-Hop Enabled", CurrentValue=oceanHopEnabled,
-    Callback=function(v) 
-        oceanHopEnabled=v
-        if not v then oceanHopFastSkillActivated=false end
-        if v and not inventorySynced then
-            inventorySynced = true
-            task.spawn(function() syncInventory() end)
-        elseif not v and not oceanMobsEnabled and not autofarmEnabled and not eventIslandEnabled and not islandFarmEnabled then
-            inventorySynced = false
-        end
-    end
+    Callback=function(v) oceanHopEnabled=v; if not v then oceanHopFastSkillActivated=false end end
 })
 
 OceanHopTab:CreateSection("Priority Mob Selection")
@@ -761,16 +733,7 @@ UI.OceanHopRegularSkillF=OceanHopTab:CreateToggle({Name="F",CurrentValue=oceanHo
 
 UI.EventToggle=EventTab:CreateToggle({
     Name="Farm Event", CurrentValue=eventIslandEnabled,
-    Callback=function(v) 
-        eventIslandEnabled=v
-        if not v then alreadyAtEventIsland=false end
-        if v and not inventorySynced then
-            inventorySynced = true
-            task.spawn(function() syncInventory() end)
-        elseif not v and not oceanMobsEnabled and not autofarmEnabled and not islandFarmEnabled and not oceanHopEnabled then
-            inventorySynced = false
-        end
-    end
+    Callback=function(v) eventIslandEnabled=v; if not v then alreadyAtEventIsland=false end end
 })
 UI.EventDD=EventTab:CreateDropdown({
     Name="Tool", Options=getBackpackTools(),
@@ -1273,55 +1236,9 @@ task.spawn(function()
     end
 end)
 
--- Refresh config dropdowns after loading from file
-task.spawn(function()
-    task.wait(0.5)
-    if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
-    if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
-end)
-
 -- ================================================
 -- SECTION 17: CORE FUNCTIONS
 -- ================================================
-local function syncInventory()
-    pcall(function()
-        local plr = LocalPlayer.PlayerGui:FindFirstChild("PLR")
-        if plr and plr:FindFirstChild("Main") then
-            local main = plr.Main
-            if main:FindFirstChild("INVENTORY") then
-                local inventoryBtn = main:FindFirstChild("INVENTORY")
-                
-                -- Click to open
-                if firesignal then firesignal(inventoryBtn.MouseButton1Click)
-                else inventoryBtn.MouseButton1Click:Fire() end
-                
-                -- Wait for Open.Value to be true
-                local waitTime = 0
-                while waitTime < 5 do
-                    pcall(function()
-                        if main.INVENTORY:FindFirstChild("Open") then
-                            if main.INVENTORY.Open.Value == true then
-                                waitTime = 10
-                                break
-                            end
-                        end
-                    end)
-                    task.wait(0.1)
-                    waitTime = waitTime + 0.1
-                end
-                
-                -- Wait 1 second for sync
-                task.wait(1)
-                
-                -- Click to close
-                if firesignal then firesignal(inventoryBtn.MouseButton1Click)
-                else inventoryBtn.MouseButton1Click:Fire() end
-                
-                print("✅ [INVENTORY SYNC] Completed!")
-            end
-        end
-    end)
-end
 local function robustClick(btn)
     if not btn then return end
     -- Try direct click first
@@ -2044,6 +1961,6 @@ if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
-        Rayfield:Notify({Title="Config Caricata ✅", Content=autoLoadConfigName, Duration=3})
+        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=3})
     end)
 end
