@@ -600,7 +600,8 @@ UI.AutoFarmToggle = BossTab:CreateToggle({
                 inventorySynced = true
                 task.spawn(function() syncInventory() end)
             end
-        elseif not oceanMobsEnabled and not eventIslandEnabled and not islandFarmEnabled and not oceanHopEnabled then
+        end
+        if not oceanMobsEnabled and not eventIslandEnabled and not islandFarmEnabled and not oceanHopEnabled then
             inventorySynced = false
         end
     end
