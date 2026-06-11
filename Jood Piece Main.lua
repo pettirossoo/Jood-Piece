@@ -385,13 +385,6 @@ end
 
 loadConfigFromFile()
 
--- Refresh config dropdowns after loading from file
-task.spawn(function()
-    task.wait(2) -- Wait for Rayfield UI to be created
-    if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
-    if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
-end)
-
 -- ================================================
 -- AUTO-LOAD CONFIG (load variables before Rayfield)
 -- ================================================
@@ -1278,6 +1271,13 @@ task.spawn(function()
             end)
         end
     end
+end)
+
+-- Refresh config dropdowns after loading from file
+task.spawn(function()
+    task.wait(0.5)
+    if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
+    if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
 end)
 
 -- ================================================
