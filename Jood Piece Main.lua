@@ -1,4 +1,4 @@
--- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - NO STEP1/STEP4) //
+-- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - NO STEP1/STEP4 - DIRECT SERVER SYNC) //
 local Players       = game:GetService("Players")
 local RunService    = game:GetService("RunService")
 local VirtualUser   = game:GetService("VirtualUser")
@@ -369,7 +369,7 @@ local function applyVariables(s)
     oceanHopRegularSkillF = s.oceanHopRegularSkillF ~= nil and s.oceanHopRegularSkillF or false
     islandFarmEnabled     = s.islandFarmEnabled or false
     selectedIslandMob     = s.selectedIslandMob
-    islandAutoEquipTool   = s.islandAutoEquipTool
+    islandAutoEquipTool   = islandAutoEquipTool
     islandAutoEquip       = s.islandAutoEquip or false
     islandSkillZ          = s.islandSkillZ ~= nil and s.islandSkillZ or false
     islandSkillX          = s.islandSkillX ~= nil and s.islandSkillX or false
@@ -700,11 +700,6 @@ UI.OceanHopMUIToggle=OceanHopTab:CreateToggle({
     Name="Auto Equip MUI", CurrentValue=oceanHopMUIAutoEquip,
     Callback=function(v) oceanHopMUIAutoEquip=v end
 })
-UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
-    Name="Activate F (Immortality)", CurrentValue=oceanHopMUISkillF,
-    Callback=function(v) oceanHopMUISkillF=v end
-})
-
 OceanHopTab:CreateSection("🛡️ Regular Farm (Choose ONE)")
 UI.OceanHopRegularToggle=OceanHopTab:CreateToggle({
     Name="Regular Farm", CurrentValue=oceanHopRegularEnabled,
@@ -1358,46 +1353,6 @@ local function useSkillF()
     end)
 end
 
-local function useSkillZ()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            local z=ui["Mobile Button"]:FindFirstChild("Z")
-            if z then robustClick(z); task.wait(0.1) end
-        end
-    end)
-end
-
-local function useSkillX()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            local x=ui["Mobile Button"]:FindFirstChild("X")
-            if x then robustClick(x); task.wait(0.1) end
-        end
-    end)
-end
-
-local function useSkillC()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            local c=ui["Mobile Button"]:FindFirstChild("C")
-            if c then robustClick(c); task.wait(0.1) end
-        end
-    end)
-end
-
-local function useSkillV()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            local v=ui["Mobile Button"]:FindFirstChild("V")
-            if v then robustClick(v); task.wait(0.1) end
-        end
-    end)
-end
-
 local function serverHop()
     pcall(function()
         local Api = "https://games.roblox.com/v1/games/"
@@ -1462,19 +1417,13 @@ local function executeBossFarmSteps()
 end
 
 local function isInventoryEmpty()
-    local isEmpty = true
-    pcall(function()
-        local g = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-        if g and g:FindFirstChild("INVENTORY") and g.INVENTORY:FindFirstChild("BackpackFrame") then
-            for _, child in pairs(g.INVENTORY.BackpackFrame:GetChildren()) do
-                if child:IsA("Frame") and child.Name ~= "UIGridLayout" and child.Name ~= "UIStroke" then
-                    isEmpty = false
-                    break
-                end
-            end
+    local backpack = LocalPlayer:FindFirstChild("Backpack")
+    if backpack then
+        for _, child in pairs(backpack:GetChildren()) do
+            if child:IsA("Tool") then return false end
         end
-    end)
-    return isEmpty
+    end
+    return true
 end
 
 -- ================================================
@@ -1531,62 +1480,30 @@ task.spawn(function()
     end
 end)
 
--- Inventory (MODIFIED WITH ONE-TIME AUTO-SYNC FIX)
+-- Inventory (OPTIMIZED SERVER-SIDE SYNC)
 task.spawn(function()
-    local hasSynced = false -- Gestione locale del sync per eseguirlo 1 sola volta all'attivazione
-
-    while true do
+    local invRemote = game:GetService("ReplicatedStorage"):WaitForChild("System"):WaitForChild("Inv"):WaitForChild("Inventory")
+    
+    while task.wait(3) do
         if inventoryEnabled and not STEPS_IN_PROGRESS then
-            local plrHud = LocalPlayer.PlayerGui:FindFirstChild("PLR")
-            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-            
-            -- Verifichiamo che i nodi UI fondamentali esistano prima di procedere
-            if plrHud and mainGui then
-                -- Eseguiamo il Sync solo se non è già stato fatto in questa sessione di attivazione
-                if not hasSynced then
-                    local invButton = plrHud.Main:FindFirstChild("INVENTORY")
-                    local invOpenVal = invButton and invButton:FindFirstChild("Open")
-                    
-                    if invOpenVal and invOpenVal.Value == false then
-                        print("🔄 [SYSTEM] Auto-Storage Attivo: Sincronizzazione Iniziale Inventario...")
-                        task.wait(1) -- Pausa di sicurezza anti-glitch per UI in caricamento / Config Auto-Load
-                        robustClick(invButton)
-                        task.wait(1.5) -- Tempo necessario al motore grafico del gioco per istanziare i tool
-                        robustClick(invButton) 
-                        task.wait(0.5)
+            local backpack = LocalPlayer:FindFirstChild("Backpack")
+            if backpack then
+                -- Raggruppiamo gli oggetti per tipo
+                local itemsToStore = {}
+                for _, item in ipairs(backpack:GetChildren()) do
+                    if item:IsA("Tool") then
+                        itemsToStore[item.Name] = (itemsToStore[item.Name] or 0) + 1
                     end
-                    hasSynced = true
                 end
-
-                -- Logica Standard di Spostamento / Storage degli Item
-                local found = false
-                pcall(function()
-                    if mainGui:FindFirstChild("INVENTORY") and mainGui.INVENTORY:FindFirstChild("BackpackFrame") then
-                        for _, f in pairs(mainGui.INVENTORY.BackpackFrame:GetChildren()) do
-                            if f.Name == "UIGridLayout" or f.Name == "UIStroke" then continue end
-                            local btn = f:FindFirstChild("Button")
-                            if btn and btn:FindFirstChild("Amount") then
-                                local n = tonumber(btn.Amount.Text:match("(%d+)"))
-                                if n and n > 0 then
-                                    found = true
-                                    for i = 1, math.min(n, 15) do
-                                        task.spawn(function() robustClick(btn) end)
-                                    end
-                                    task.wait(0.05)
-                                end
-                            end
-                        end
-                    end
-                end)
-                task.wait(found and 0.1 or 2)
-            else
-                -- In caso di caricamento iniziale del gioco, attendi che la UI sia istanziata
-                task.wait(1)
+                
+                -- Inviamo i comandi al server
+                for itemName, count in pairs(itemsToStore) do
+                    pcall(function()
+                        invRemote:InvokeServer("Add", itemName, count)
+                    end)
+                    task.wait(0.1) -- Delay di sicurezza
+                end
             end
-        else
-            -- Se il toggle viene disattivato (o ci sono boss step attivi), resetta il flag di Sync
-            hasSynced = false
-            task.wait(1)
         end
     end
 end)
@@ -1970,7 +1887,7 @@ LocalPlayer.Idled:Connect(function()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
-print("✅ SJW Premium V19 - QOL UPDATED (No Step 1/4)")
+print("✅ SJW Premium V19 - QOL UPDATED (No Step 1/4 - Direct Server Sync)")
 print("📁 Config folder: "..ConfigFolder)
 
 -- ================================================
