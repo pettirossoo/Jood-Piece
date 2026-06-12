@@ -838,7 +838,7 @@ MiscTab:CreateSection("✈️ Fly")
 
 MiscTab:CreateToggle({
     Name="Fly", CurrentValue=false,
-    Callback=function(v) flyEnabled=v; if v then startFly() else stopFly() end end,
+    Callback=function(v) flyEnabled=v; if v then startFly() else stopFly() end,
 })
 
 UI.FlySpeedSlider=MiscTab:CreateSlider({
@@ -1425,19 +1425,16 @@ end)
 
 -- Inventory (EXCLUSIVELY CONTROLLED BY TOGGLE)
 task.spawn(function()
-    while true do
-        task.wait(0.5)
-        local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-        local invFrame = mainGui and mainGui:FindFirstChild("INVENTORY")
-        
-        if invFrame then
-            if inventoryEnabled then
-                -- Apertura se non visibile
-                if not invFrame.Visible then invFrame.Visible = true end
-                
-                -- Logica di accumulo (solo se non siamo in esecuzione di steps)
-                if not STEPS_IN_PROGRESS then
-                    pcall(function()
+    while task.wait(0.5) do
+        pcall(function()
+            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+            local invFrame = mainGui and mainGui:FindFirstChild("INVENTORY")
+            
+            if invFrame then
+                if inventoryEnabled then
+                    if not invFrame.Visible then invFrame.Visible = true end
+                    
+                    if not STEPS_IN_PROGRESS then
                         if invFrame:FindFirstChild("BackpackFrame") then
                             for _, f in pairs(invFrame.BackpackFrame:GetChildren()) do
                                 if f.Name == "UIGridLayout" or f.Name == "UIStroke" then continue end
@@ -1452,13 +1449,12 @@ task.spawn(function()
                                 end
                             end
                         end
-                    end)
+                    end
+                else
+                    if invFrame.Visible then invFrame.Visible = false end
                 end
-            else
-                -- Chiusura forzata se il toggle è disabilitato
-                if invFrame.Visible then invFrame.Visible = false end
             end
-        end
+        end)
     end
 end)
 
