@@ -1,6 +1,4 @@
 -- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - NO STEP1/STEP4) //
--- // UPDATED: INVENTORY LOGIC FIXED //
-
 local Players       = game:GetService("Players")
 local RunService    = game:GetService("RunService")
 local VirtualUser   = game:GetService("VirtualUser")
@@ -73,6 +71,7 @@ local oceanHopRegularSkillX        = false
 local oceanHopRegularSkillC        = false
 local oceanHopRegularSkillV        = false
 local oceanHopRegularSkillF        = false
+-- Fast Farm (Vergil) - REMOVED
 local oceanHopServerHopDelay       = 10
 
 local selectedTitle            = nil
@@ -196,6 +195,7 @@ local function getIslandMobs()
         if workspace:FindFirstChild("Mobs") then
             local mobsFolder = workspace.Mobs
             for _, islandFolder in pairs(mobsFolder:GetChildren()) do
+                -- Skip Ocean since it has its own tab
                 if islandFolder.Name == "Ocean" then continue end
                 if islandFolder:IsA("Folder") then
                     for _, mob in pairs(islandFolder:GetChildren()) do
@@ -207,6 +207,7 @@ local function getIslandMobs()
             end
         end
     end)
+    -- Remove duplicates
     local uniqueMobs = {}
     local seen = {}
     for _, mobName in pairs(mobs) do
@@ -381,12 +382,16 @@ end
 
 loadConfigFromFile()
 
+-- Refresh config dropdowns after loading from file
 task.spawn(function()
-    task.wait(2)
+    task.wait(2) -- Wait for Rayfield UI to be created
     if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
     if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
 end)
 
+-- ================================================
+-- AUTO-LOAD CONFIG (load variables before Rayfield)
+-- ================================================
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
 end
@@ -474,8 +479,8 @@ ConfigTab:CreateButton({
             return
         end
         applyVariables(savedConfigs[currentConfigName])
-        task.wait(0.5) 
-        updateAllUI() 
+        task.wait(0.5) -- Wait for variables to apply
+        updateAllUI() -- Now update the UI
         Rayfield:Notify({Title="Loaded ✅", Content=currentConfigName, Duration=2})
     end,
 })
@@ -695,6 +700,11 @@ UI.OceanHopMUIToggle=OceanHopTab:CreateToggle({
     Name="Auto Equip MUI", CurrentValue=oceanHopMUIAutoEquip,
     Callback=function(v) oceanHopMUIAutoEquip=v end
 })
+UI.OceanHopMUISkillF=OceanHopTab:CreateToggle({
+    Name="Activate F (Immortality)", CurrentValue=oceanHopMUISkillF,
+    Callback=function(v) oceanHopMUISkillF=v end
+})
+
 OceanHopTab:CreateSection("🛡️ Regular Farm (Choose ONE)")
 UI.OceanHopRegularToggle=OceanHopTab:CreateToggle({
     Name="Regular Farm", CurrentValue=oceanHopRegularEnabled,
@@ -824,7 +834,7 @@ UI.MerchDD=MerchTab:CreateDropdown({
 })
 
 -- ================================================
--- SECTION 12: INVENTORY (TOGGLE CONTROL)
+-- SECTION 12: INVENTORY
 -- ================================================
 UI.InvToggle=InvTab:CreateToggle({
     Name="Auto-Store (FAST)", CurrentValue=inventoryEnabled,
@@ -890,17 +900,29 @@ UI.DisableVFXToggle = MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=disableVFX,
     Callback=function(v)
         disableVFX = v
+        print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
+            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
+                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
+                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
+                    
                     if scrolling then
                         local vfx = scrolling:FindFirstChild("DisableVFX")
+                        print("🔍 [DEBUG] DisableVFX found: "..tostring(vfx ~= nil))
+                        
                         if vfx then
                             local imgBtn = vfx:FindFirstChild("ImageButton")
+                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
+                            
                             if imgBtn then
+                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                                 task.wait(0.5)
@@ -917,17 +939,29 @@ UI.DisableCamShakeToggle = MiscTab:CreateToggle({
     Name="Disable Cam Shake", CurrentValue=disableCamShake,
     Callback=function(v)
         disableCamShake = v
+        print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
+            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
+                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
+                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
+                    
                     if scrolling then
                         local camshake = scrolling:FindFirstChild("CamShake")
+                        print("🔍 [DEBUG] CamShake found: "..tostring(camshake ~= nil))
+                        
                         if camshake then
                             local imgBtn = camshake:FindFirstChild("ImageButton")
+                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
+                            
                             if imgBtn then
+                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                                 task.wait(0.5)
@@ -946,14 +980,19 @@ UI.FastModeToggle = MiscTab:CreateToggle({
         fastModeEnabled = v
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
+                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    
                     if scrolling then
                         local fastMode = scrolling:FindFirstChild("FastMode")
+                        
                         if fastMode then
                             local imgBtn = fastMode:FindFirstChild("ImageButton")
+                            
                             if imgBtn then
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
@@ -973,7 +1012,7 @@ MiscTab:CreateButton({Name="Rejoin",Callback=function()
 end})
 
 -- ================================================
--- SECTION 14: FLY
+-- SECTION 14: FLY (COMPLETELY FIXED - ABSOLUTE DIRECTION)
 -- ================================================
 function startFly()
     stopFly()
@@ -1008,20 +1047,27 @@ function startFly()
         if not flyEnabled or not hrp or not hrp.Parent or not hum then return end
         if not flyBV or not flyBG then return end
 
+        -- Get input from keyboard
         ctrl = {f = 0, b = 0, l = 0, r = 0}
         if UserInputService:IsKeyDown(Enum.KeyCode.W) then ctrl.f = 1 end
         if UserInputService:IsKeyDown(Enum.KeyCode.S) then ctrl.b = 1 end
         if UserInputService:IsKeyDown(Enum.KeyCode.A) then ctrl.l = 1 end
         if UserInputService:IsKeyDown(Enum.KeyCode.D) then ctrl.r = 1 end
 
+        -- Acceleration system
         if ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0 then
             speed = speed + 0.5 + (speed/maxspeed)
-            if speed > maxspeed then speed = maxspeed end
+            if speed > maxspeed then
+                speed = maxspeed
+            end
         elseif not (ctrl.l + ctrl.r ~= 0 or ctrl.f + ctrl.b ~= 0) and speed ~= 0 then
             speed = speed - 1
-            if speed < 0 then speed = 0 end
+            if speed < 0 then
+                speed = 0
+            end
         end
 
+        -- Calculate velocity
         local cam = workspace.CurrentCamera
         if (ctrl.l + ctrl.r) ~= 0 or (ctrl.f + ctrl.b) ~= 0 then
             flyBV.velocity = ((cam.CoordinateFrame.lookVector * (ctrl.f+ctrl.b)) + ((cam.CoordinateFrame * CFrame.new(ctrl.l+ctrl.r,(ctrl.f+ctrl.b)*.2,0).p) - cam.CoordinateFrame.p))*speed
@@ -1032,6 +1078,7 @@ function startFly()
             flyBV.velocity = Vector3.new(0,0,0)
         end
 
+        -- Rotation
         flyBG.cframe = cam.CoordinateFrame * CFrame.Angles(-math.rad((ctrl.f+ctrl.b)*50*speed/maxspeed),0,0)
     end)
 end
@@ -1085,6 +1132,7 @@ function updateAllUI()
         if UI.EventSkillV then UI.EventSkillV:Set(eventSkillV) end
         if UI.EventSkillF then UI.EventSkillF:Set(eventSkillF) end
         
+        -- Ocean-Hop toggles
         if UI.OceanHopToggle then UI.OceanHopToggle:Set(oceanHopEnabled) end
         if UI.OceanHopPriorityToggle then UI.OceanHopPriorityToggle:Set(oceanHopPriorityEnabled) end
         if UI.OceanHopMUIToggle then UI.OceanHopMUIToggle:Set(oceanHopMUIAutoEquip) end
@@ -1107,6 +1155,7 @@ function updateAllUI()
         
         task.wait(0.1)
         
+        -- Set dropdown values (format: {value})
         if UI.BossDD and selectedBoss then UI.BossDD:Set({selectedBoss}) end
         if UI.Step2DD and step2Tool then UI.Step2DD:Set({step2Tool}) end
         if UI.Step3DD and step3Tool then UI.Step3DD:Set({step3Tool}) end
@@ -1116,6 +1165,7 @@ function updateAllUI()
         if UI.GuarDD and #selectedGuaranteeItems > 0 then UI.GuarDD:Set(selectedGuaranteeItems) end
         if UI.MerchDD and #selectedMerchantItems > 0 then UI.MerchDD:Set(selectedMerchantItems) end
         
+        -- Ocean-Hop dropdowns
         if UI.OceanHopMUIDD and oceanHopMUITool then UI.OceanHopMUIDD:Set({oceanHopMUITool}) end
         if UI.OceanHopPriorityDD and oceanHopPriorityMob then UI.OceanHopPriorityDD:Set({oceanHopPriorityMob}) end
         if UI.OceanHopRegularDD and oceanHopRegularTool then UI.OceanHopRegularDD:Set({oceanHopRegularTool}) end
@@ -1124,6 +1174,7 @@ function updateAllUI()
         
         task.wait(0.1)
         
+        -- Refresh dropdowns with latest data
         if UI.BossDD then UI.BossDD:Refresh(getAvailableBosses(), true) end
         if UI.Step2DD then UI.Step2DD:Refresh(getBackpackTools(), true) end
         if UI.Step3DD then UI.Step3DD:Refresh(getBackpackTools(), true) end
@@ -1132,17 +1183,22 @@ function updateAllUI()
         if UI.TitleDD then UI.TitleDD:Refresh(getTitles(), true) end
         if UI.GuarDD then UI.GuarDD:Refresh(getGuaranteeItems(), true) end
         
+        -- Ocean-Hop refresh
         if UI.OceanHopMUIDD then UI.OceanHopMUIDD:Refresh(getBackpackTools(), true) end
         if UI.OceanHopRegularDD then UI.OceanHopRegularDD:Refresh(getBackpackTools(), true) end
         if UI.IslandMobDD then UI.IslandMobDD:Refresh(getIslandMobs(), true) end
         if UI.IslandToolDD then UI.IslandToolDD:Refresh(getBackpackTools(), true) end
         if UI.MerchDD then UI.MerchDD:Refresh(getMerchantItems(), true) end
+        
+        print("✅ UI updated completely!")
     end)
 end
 
 -- ================================================
 -- SECTION 16: LOOPS
 -- ================================================
+
+-- Noclip
 RunService.Heartbeat:Connect(function()
     if not noclipEnabled then return end
     pcall(function()
@@ -1154,6 +1210,7 @@ RunService.Heartbeat:Connect(function()
     end)
 end)
 
+-- Speed loop
 RunService.Heartbeat:Connect(function()
     if not speedLoopEnabled then return end
     pcall(function()
@@ -1166,6 +1223,7 @@ RunService.Heartbeat:Connect(function()
     end)
 end)
 
+-- Auto-delete SkillEffect
 task.spawn(function()
     while true do
         task.wait(3)
@@ -1183,10 +1241,12 @@ end)
 -- ================================================
 local function robustClick(btn)
     if not btn then return end
+    -- Try direct click first
     pcall(function()
         if firesignal then firesignal(btn.MouseButton1Click)
         elseif btn.MouseButton1Click then btn.MouseButton1Click:Fire() end
     end)
+    -- Retry with spawn if needed
     task.spawn(function()
         for i=1,3 do
             task.wait(0.05)
@@ -1298,6 +1358,46 @@ local function useSkillF()
     end)
 end
 
+local function useSkillZ()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local z=ui["Mobile Button"]:FindFirstChild("Z")
+            if z then robustClick(z); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillX()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local x=ui["Mobile Button"]:FindFirstChild("X")
+            if x then robustClick(x); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillC()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local c=ui["Mobile Button"]:FindFirstChild("C")
+            if c then robustClick(c); task.wait(0.1) end
+        end
+    end)
+end
+
+local function useSkillV()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local v=ui["Mobile Button"]:FindFirstChild("V")
+            if v then robustClick(v); task.wait(0.1) end
+        end
+    end)
+end
+
 local function serverHop()
     pcall(function()
         local Api = "https://games.roblox.com/v1/games/"
@@ -1308,6 +1408,7 @@ local function serverHop()
         if servers and servers.data and #servers.data > 0 then
             local randomServer = servers.data[math.random(1, #servers.data)]
             if randomServer and randomServer.id ~= game.JobId then
+                print("🌐 [SERVER-HOP] Joining random server: "..randomServer.id)
                 TeleportService:TeleportToPlaceInstance(placeId, randomServer.id, LocalPlayer)
             end
         end
@@ -1317,8 +1418,10 @@ end
 local function summonBoss()
     if not autofarmEnabled or mainFarmPaused or STEPS_IN_PROGRESS then return end
     pcall(function()
+        -- Check if boss already exists
         local boss=workspace.Mobs.Ocean:FindFirstChild(selectedBoss)
-        if boss then return end
+        if boss then return end -- Boss exists, don't summon
+        
         local g=LocalPlayer.PlayerGui:FindFirstChild("MainGui")
         if g and g:FindFirstChild("SUMMON") and g.SUMMON:FindFirstChild("Main") then
             local btn=g.SUMMON.Main:FindFirstChild(selectedBoss)
@@ -1331,8 +1434,11 @@ local function executeBossFarmSteps()
     if isExecutingSteps or stepsCompleted or not autofarmEnabled then return end
     STEPS_IN_PROGRESS=true; mainFarmPaused=true
     isExecutingSteps=true
+    print("🔧 Steps started")
     task.spawn(function()
         pcall(function()
+            -- STEP 1 & 4 REMOVED - Auto-equipped by game QOL update
+            
             if step2Tool then
                 equipTool(step2Tool); task.wait(1)
                 if step2FEnabled and not step2FActivated then
@@ -1345,9 +1451,11 @@ local function executeBossFarmSteps()
                 end
             end
             if step3Tool then task.wait(0.3); equipTool(step3Tool); task.wait(0.5) end
+            
             task.wait(0.5)
             stepsCompleted=true; isExecutingSteps=false
             STEPS_IN_PROGRESS=false; mainFarmPaused=false
+            print("✅ Steps completed!")
             summonBoss()
         end)
     end)
@@ -1423,41 +1531,62 @@ task.spawn(function()
     end
 end)
 
--- Inventory (EXCLUSIVELY CONTROLLED BY TOGGLE)
+-- Inventory (MODIFIED WITH ONE-TIME AUTO-SYNC FIX)
 task.spawn(function()
+    local hasSynced = false -- Gestione locale del sync per eseguirlo 1 sola volta all'attivazione
+
     while true do
-        task.wait(0.5)
-        local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-        local invFrame = mainGui and mainGui:FindFirstChild("INVENTORY")
-        
-        if invFrame then
-            if inventoryEnabled then
-                -- Apertura se non visibile
-                if not invFrame.Visible then invFrame.Visible = true end
-                
-                -- Logica di accumulo (solo se non siamo in esecuzione di steps)
-                if not STEPS_IN_PROGRESS then
-                    pcall(function()
-                        if invFrame:FindFirstChild("BackpackFrame") then
-                            for _, f in pairs(invFrame.BackpackFrame:GetChildren()) do
-                                if f.Name == "UIGridLayout" or f.Name == "UIStroke" then continue end
-                                local btn = f:FindFirstChild("Button")
-                                if btn and btn:FindFirstChild("Amount") then
-                                    local n = tonumber(btn.Amount.Text:match("(%d+)"))
-                                    if n and n > 0 then
-                                        for i = 1, math.min(n, 15) do
-                                            task.spawn(function() robustClick(btn) end)
-                                        end
+        if inventoryEnabled and not STEPS_IN_PROGRESS then
+            local plrHud = LocalPlayer.PlayerGui:FindFirstChild("PLR")
+            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+            
+            -- Verifichiamo che i nodi UI fondamentali esistano prima di procedere
+            if plrHud and mainGui then
+                -- Eseguiamo il Sync solo se non è già stato fatto in questa sessione di attivazione
+                if not hasSynced then
+                    local invButton = plrHud.Main:FindFirstChild("INVENTORY")
+                    local invOpenVal = invButton and invButton:FindFirstChild("Open")
+                    
+                    if invOpenVal and invOpenVal.Value == false then
+                        print("🔄 [SYSTEM] Auto-Storage Attivo: Sincronizzazione Iniziale Inventario...")
+                        task.wait(1) -- Pausa di sicurezza anti-glitch per UI in caricamento / Config Auto-Load
+                        robustClick(invButton)
+                        task.wait(1.5) -- Tempo necessario al motore grafico del gioco per istanziare i tool
+                        robustClick(invButton) 
+                        task.wait(0.5)
+                    end
+                    hasSynced = true
+                end
+
+                -- Logica Standard di Spostamento / Storage degli Item
+                local found = false
+                pcall(function()
+                    if mainGui:FindFirstChild("INVENTORY") and mainGui.INVENTORY:FindFirstChild("BackpackFrame") then
+                        for _, f in pairs(mainGui.INVENTORY.BackpackFrame:GetChildren()) do
+                            if f.Name == "UIGridLayout" or f.Name == "UIStroke" then continue end
+                            local btn = f:FindFirstChild("Button")
+                            if btn and btn:FindFirstChild("Amount") then
+                                local n = tonumber(btn.Amount.Text:match("(%d+)"))
+                                if n and n > 0 then
+                                    found = true
+                                    for i = 1, math.min(n, 15) do
+                                        task.spawn(function() robustClick(btn) end)
                                     end
+                                    task.wait(0.05)
                                 end
                             end
                         end
-                    end)
-                end
+                    end
+                end)
+                task.wait(found and 0.1 or 2)
             else
-                -- Chiusura forzata se il toggle è disabilitato
-                if invFrame.Visible then invFrame.Visible = false end
+                -- In caso di caricamento iniziale del gioco, attendi che la UI sia istanziata
+                task.wait(1)
             end
+        else
+            -- Se il toggle viene disattivato (o ci sono boss step attivi), resetta il flag di Sync
+            hasSynced = false
+            task.wait(1)
         end
     end
 end)
@@ -1503,6 +1632,7 @@ local function farmOceanHopMob(mob, mode)
         local t=mob.HumanoidRootPart
         hrp.CFrame=CFrame.new(t.Position+Vector3.new(0,3,2), t.Position)
     end)
+    
     if mode == "regular" then
         if oceanHopRegularTool then forceEquipTool(oceanHopRegularTool) end
         useOceanHopRegularSkills()
@@ -1563,7 +1693,9 @@ end)
 task.spawn(function()
     while task.wait(0.3) do
         if not oceanHopEnabled or STEPS_IN_PROGRESS then continue end
-        if oceanHopRegularEnabled then
+        
+        -- Regular Farm Mode
+        if oceanHopRegularEnabled and not oceanHopFastEnabled then
             local mobs = {}
             pcall(function()
                 if workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean") then
@@ -1574,12 +1706,16 @@ task.spawn(function()
                     end
                 end
             end)
+            
             if #mobs > 0 then
+                -- Equip MUI if needed
                 if oceanHopMUIAutoEquip and oceanHopMUITool then
                     forceEquipTool(oceanHopMUITool)
                     if oceanHopMUISkillF then useSkillF() end
                     task.wait(1)
                 end
+                
+                -- Farm with priority if enabled
                 local targetMob = nil
                 if oceanHopPriorityEnabled and oceanHopPriorityMob then
                     for _, m in pairs(mobs) do
@@ -1589,6 +1725,8 @@ task.spawn(function()
                         end
                     end
                 end
+                
+                -- Farm all mobs (or priority first)
                 if targetMob then
                     while targetMob and targetMob.Parent and oceanHopRegularEnabled do
                         farmOceanHopMob(targetMob, "regular")
@@ -1596,6 +1734,8 @@ task.spawn(function()
                         if not workspace.Mobs.Ocean:FindFirstChild(targetMob.Name) then break end
                     end
                 end
+                
+                -- Farm remaining mobs
                 for _, mob in pairs(mobs) do
                     if mob ~= targetMob then
                         while mob and mob.Parent and oceanHopRegularEnabled do
@@ -1606,19 +1746,32 @@ task.spawn(function()
                     end
                 end
             else
+                -- Ocean is empty, server hop
+                print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
+                
+                -- Wait for inventory to be empty and stay empty for the full delay
                 local serverHopTimer = 0
+                print("⏳ [OCEAN-HOP] Waiting for inventory to empty...")
                 while serverHopTimer < oceanHopServerHopDelay do
                     if isInventoryEmpty() then
                         serverHopTimer = serverHopTimer + 0.2
+                        print("⏳ [OCEAN-HOP] Inventory empty! Timer: "..serverHopTimer.."/"..oceanHopServerHopDelay)
                     else
                         serverHopTimer = 0
+                        print("🔄 [OCEAN-HOP] Item detected! Timer reset to 0")
                     end
                     task.wait(0.2)
                 end
+                print("✅ [OCEAN-HOP] Inventory empty and timer complete!")
+                
                 if oceanHopEnabled then
+                    oceanHopFastSkillActivated = false
+                    print("🌐 [OCEAN-HOP] Server hopping...")
                     serverHop()
                 end
             end
+        
+        -- Fast Farm Mode (Vergil)
         end
     end
 end)
@@ -1674,6 +1827,7 @@ task.spawn(function()
             pcall(function()
                 if workspace:FindFirstChild("Mobs") then
                     for _, islandFolder in pairs(workspace.Mobs:GetChildren()) do
+                        -- Skip Ocean since it has its own tab
                         if islandFolder.Name == "Ocean" then continue end
                         if islandFolder:IsA("Folder") then
                             local mob = islandFolder:FindFirstChild(selectedIslandMob)
@@ -1691,6 +1845,7 @@ task.spawn(function()
                     forceEquipTool(islandAutoEquipTool)
                 end
                 while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                    -- Position player near mob
                     pcall(function()
                         local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                         if hrp and foundMob:FindFirstChild("HumanoidRootPart") then
@@ -1777,6 +1932,7 @@ LocalPlayer.CharacterAdded:Connect(function()
     isExecutingSteps=false; STEPS_IN_PROGRESS=false
     alreadyAtEventIsland=false
     
+    -- Re-equip tools only if mobs actually exist
     if oceanMobsEnabled and oceanAutoEquipTool then
         pcall(function()
             local oceanFolder = workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean")
@@ -1808,20 +1964,32 @@ LocalPlayer.CharacterAdded:Connect(function()
     if autofarmEnabled then task.wait(1); executeBossFarmSteps() end
 end)
 
+-- Anti-AFK
 LocalPlayer.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
 end)
 
+print("✅ SJW Premium V19 - QOL UPDATED (No Step 1/4)")
+print("📁 Config folder: "..ConfigFolder)
+
+-- ================================================
+-- SYSTEM AUTO-LOAD
+-- ================================================
 loadConfigFromFile()
+
+-- Refresh dropdowns after loading configs
 task.wait(0.5)
 if UI.ConfigDD then UI.ConfigDD:Refresh(getConfigNames(), true) end
 if UI.AutoLoadDD then UI.AutoLoadDD:Refresh(getAutoLoadOpts(), true) end
 
 if autoLoadConfigName ~= "" and savedConfigs[autoLoadConfigName] then
     applyVariables(savedConfigs[autoLoadConfigName])
+    
+    -- Inizializza asincronamente per dare tempo a Rayfield
     task.spawn(function()
         task.wait(1.5) 
         updateAllUI()
+        Rayfield:Notify({Title="Config Loaded ✅", Content=autoLoadConfigName, Duration=3})
     end)
 end
