@@ -1,4 +1,4 @@
--- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - NO STEP1/STEP4 - DIRECT SERVER SYNC) //
+-- // AutoFarm SJW - PREMIUM MOBILE V19 (QOL UPDATED - DYNAMIC INVENTORY PROTECTION) //
 local Players       = game:GetService("Players")
 local RunService    = game:GetService("RunService")
 local VirtualUser   = game:GetService("VirtualUser")
@@ -833,18 +833,7 @@ UI.MerchDD=MerchTab:CreateDropdown({
 -- ================================================
 UI.InvToggle=InvTab:CreateToggle({
     Name="Auto-Store (FAST)", CurrentValue=inventoryEnabled,
-    Callback=function(v)
-        inventoryEnabled=v
-        -- Logic to handle GUI opening/closing
-        pcall(function()
-            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
-            -- Attempting to find the Inventory button to toggle state
-            local invBtn = mainGui and (mainGui:FindFirstChild("Inventory", true) or mainGui:FindFirstChild("Bag", true))
-            if invBtn and invBtn:IsA("GuiButton") then
-                robustClick(invBtn)
-            end
-        end)
-    end
+    Callback=function(v) inventoryEnabled=v end
 })
 
 -- ================================================
@@ -906,17 +895,29 @@ UI.DisableVFXToggle = MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=disableVFX,
     Callback=function(v)
         disableVFX = v
+        print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
+            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
+                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
+                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
+                    
                     if scrolling then
                         local vfx = scrolling:FindFirstChild("DisableVFX")
+                        print("🔍 [DEBUG] DisableVFX found: "..tostring(vfx ~= nil))
+                        
                         if vfx then
                             local imgBtn = vfx:FindFirstChild("ImageButton")
+                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
+                            
                             if imgBtn then
+                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                                 task.wait(0.5)
@@ -933,17 +934,29 @@ UI.DisableCamShakeToggle = MiscTab:CreateToggle({
     Name="Disable Cam Shake", CurrentValue=disableCamShake,
     Callback=function(v)
         disableCamShake = v
+        print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
+            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
+                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
+                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
+                    
                     if scrolling then
                         local camshake = scrolling:FindFirstChild("CamShake")
+                        print("🔍 [DEBUG] CamShake found: "..tostring(camshake ~= nil))
+                        
                         if camshake then
                             local imgBtn = camshake:FindFirstChild("ImageButton")
+                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
+                            
                             if imgBtn then
+                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                                 task.wait(0.5)
@@ -962,14 +975,19 @@ UI.FastModeToggle = MiscTab:CreateToggle({
         fastModeEnabled = v
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
+                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
+                    
                     if scrolling then
                         local fastMode = scrolling:FindFirstChild("FastMode")
+                        
                         if fastMode then
                             local imgBtn = fastMode:FindFirstChild("ImageButton")
+                            
                             if imgBtn then
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
@@ -1462,28 +1480,34 @@ task.spawn(function()
     end
 end)
 
--- Inventory (OPTIMIZED SERVER-SIDE SYNC)
+-- Inventory (DYNAMIC BLACKLIST INTEGRATION)
 task.spawn(function()
     local invRemote = game:GetService("ReplicatedStorage"):WaitForChild("System"):WaitForChild("Inv"):WaitForChild("Inventory")
+    local itemUsing = LocalPlayer:WaitForChild("ItemUsing")
+    local keysToWatch = {"Sword", "Melee", "Special", "Fruit", "Accessory"}
     
     while task.wait(3) do
         if inventoryEnabled and not STEPS_IN_PROGRESS then
             local backpack = LocalPlayer:FindFirstChild("Backpack")
             if backpack then
-                -- Raggruppiamo gli oggetti per tipo
-                local itemsToStore = {}
-                for _, item in ipairs(backpack:GetChildren()) do
-                    if item:IsA("Tool") then
-                        itemsToStore[item.Name] = (itemsToStore[item.Name] or 0) + 1
+                -- Costruzione Blacklist Dinamica
+                local blacklist = {}
+                for _, key in ipairs(keysToWatch) do
+                    local obj = itemUsing:FindFirstChild(key)
+                    if obj and obj:IsA("StringValue") and obj.Value ~= "" then
+                        blacklist[obj.Value] = true
                     end
                 end
                 
-                -- Inviamo i comandi al server
-                for itemName, count in pairs(itemsToStore) do
-                    pcall(function()
-                        invRemote:InvokeServer("Add", itemName, count)
-                    end)
-                    task.wait(0.1) -- Delay di sicurezza
+                -- Processamento item nel backpack
+                for _, item in ipairs(backpack:GetChildren()) do
+                    -- Se è un tool e NON è nella blacklist, lo depositiamo
+                    if item:IsA("Tool") and not blacklist[item.Name] then
+                        pcall(function()
+                            invRemote:InvokeServer("Add", item.Name, 1)
+                        end)
+                        task.wait(0.1) -- Delay di sicurezza
+                    end
                 end
             end
         end
