@@ -1264,6 +1264,48 @@ local function useSkillF()
     end)
 end
 
+local function useEventSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if eventSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if eventSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if eventSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if eventSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if eventSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
+local function useIslandSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if islandSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if islandSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if islandSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if islandSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if islandSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
+local function farmEventMob(mob)
+    if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
+    local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    pcall(function()
+        local t=mob.HumanoidRootPart
+        local off=Vector3.new(0,0,0)
+        if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
+        elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
+        elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
+        elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
+        hrp.CFrame=CFrame.new(t.Position+off, t.Position)
+    end)
+    useEventSkills()
+end
+
 local function serverHop()
     pcall(function()
         local Api = "https://games.roblox.com/v1/games/"
@@ -1409,7 +1451,7 @@ end)
 task.spawn(function()
     while task.wait(0.3) do
         if STEPS_IN_PROGRESS then continue end
-        if islandFarmEnabled and selectedIslandMob and not mainFarmPaused then
+        if islandFarmEnabled and selectedIslandMob then
             local foundMob = nil
             pcall(function()
                 if workspace:FindFirstChild("Mobs") then
@@ -1431,7 +1473,7 @@ task.spawn(function()
                 if islandAutoEquip and islandAutoEquipTool then
                     forceEquipTool(islandAutoEquipTool)
                 end
-                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not STEPS_IN_PROGRESS do
                     -- Position player near mob
                     pcall(function()
                         local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
@@ -1457,7 +1499,7 @@ end)
 task.spawn(function()
     while task.wait(0.6) do
         if STEPS_IN_PROGRESS then continue end
-        if eventIslandEnabled and not mainFarmPaused then
+        if eventIslandEnabled then
             if not alreadyAtEventIsland then
                 pcall(function()
                     local island=workspace:FindFirstChild("Island")
@@ -1486,7 +1528,7 @@ task.spawn(function()
                 end
             end)
             for _,mob in pairs(mobs) do
-                while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                while mob and mob.Parent and eventIslandEnabled and not STEPS_IN_PROGRESS do
                     farmEventMob(mob); task.wait(0.2)
                     if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
                 end
