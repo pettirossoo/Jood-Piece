@@ -1753,6 +1753,36 @@ LocalPlayer.CharacterAdded:Connect(function()
     task.wait(4)
     stepsCompleted=false; step2FActivated=false
     isExecutingSteps=false; STEPS_IN_PROGRESS=false
+    alreadyAtEventIsland=false
+    
+    -- Re-equip tools only if mobs actually exist
+    if oceanMobsEnabled and oceanAutoEquipTool then
+        pcall(function()
+            local oceanFolder = workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean")
+            if oceanFolder then
+                for _,m in pairs(oceanFolder:GetChildren()) do
+                    if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
+                        forceEquipTool(oceanAutoEquipTool)
+                        break
+                    end
+                end
+            end
+        end)
+    end
+    if eventIslandEnabled and eventAutoEquipTool then
+        pcall(function()
+            local eventFolder = workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Event Island")
+            if eventFolder then
+                for _,m in pairs(eventFolder:GetChildren()) do
+                    if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
+                        forceEquipTool(eventAutoEquipTool)
+                        break
+                    end
+                end
+            end
+        end)
+    end
+    
     if flyEnabled then task.wait(0.5); startFly() end
     if autofarmEnabled then task.wait(1); executeBossFarmSteps() end
 end)
