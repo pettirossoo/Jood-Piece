@@ -1237,6 +1237,87 @@ local function useOceanSkills()
             if oceanSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
             if oceanSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
             if oceanSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+-- SECTION 17: CORE FUNCTIONS
+-- ================================================
+local function robustClick(btn)
+    if not btn then return end
+    -- Try direct click first
+    pcall(function()
+        if firesignal then firesignal(btn.MouseButton1Click)
+        elseif btn.MouseButton1Click then btn.MouseButton1Click:Fire() end
+    end)
+    -- Retry with spawn if needed
+    task.spawn(function()
+        for i=1,3 do
+            task.wait(0.05)
+            pcall(function()
+                if firesignal then firesignal(btn.MouseButton1Click)
+                elseif btn.MouseButton1Click then btn.MouseButton1Click:Fire() end
+            end)
+        end
+    end)
+end
+
+local function equipTool(name)
+    if not name then return false end
+    if LocalPlayer.Character:FindFirstChild(name) then return true end
+    local tool=LocalPlayer.Backpack:FindFirstChild(name)
+    if tool then
+        pcall(function() LocalPlayer.Character.Humanoid:EquipTool(tool) end)
+        task.wait(0.25)
+        return true
+    end
+    return false
+end
+
+local function forceEquipTool(toolName)
+    if not toolName then return end
+    if LocalPlayer.Character:FindFirstChild(toolName) then return end
+    task.spawn(function()
+        for i=1,5 do
+            if LocalPlayer.Character:FindFirstChild(toolName) then break end
+            local tool=LocalPlayer.Backpack:FindFirstChild(toolName)
+            if tool then pcall(function() LocalPlayer.Character.Humanoid:EquipTool(tool) end) end
+            task.wait(0.1)
+        end
+    end)
+end
+
+local function useSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if skillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if skillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if skillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if skillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if skillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
+local function useOceanSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if oceanSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if oceanSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if oceanSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if oceanSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if oceanSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
+local function useEventSkills()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            if eventSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
+            if eventSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
+            if eventSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
+            if eventSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
+            if eventSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
         end
     end)
 end
@@ -1253,18 +1334,6 @@ local function useOceanHopRegularSkills()
         end
     end)
 end
-local function useEventSkills()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            if eventSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
-            if eventSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
-            if eventSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
-            if eventSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-            if eventSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
-        end
-    end)
-end
 
 local function useIslandSkills()
     pcall(function()
@@ -1275,6 +1344,16 @@ local function useIslandSkills()
             if islandSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
             if islandSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
             if islandSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
+        end
+    end)
+end
+
+local function useSkillF()
+    pcall(function()
+        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
+        if ui and ui:FindFirstChild("Mobile Button") then
+            local f=ui["Mobile Button"]:FindFirstChild("F")
+            if f then robustClick(f); task.wait(0.1) end
         end
     end)
 end
@@ -1319,32 +1398,6 @@ local function useSkillV()
     end)
 end
 
-local function farmEventMob(mob)
-    if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
-    local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    pcall(function()
-        local t=mob.HumanoidRootPart
-        local off=Vector3.new(0,0,0)
-        if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
-        elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
-        elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
-        elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
-        hrp.CFrame=CFrame.new(t.Position+off, t.Position)
-    end)
-    useEventSkills()
-end
-
-local function useSkillF()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            local f=ui["Mobile Button"]:FindFirstChild("F")
-            if f then robustClick(f); task.wait(0.1) end
-        end
-    end)
-end
-
 local function serverHop()
     pcall(function()
         local Api = "https://games.roblox.com/v1/games/"
@@ -1355,6 +1408,7 @@ local function serverHop()
         if servers and servers.data and #servers.data > 0 then
             local randomServer = servers.data[math.random(1, #servers.data)]
             if randomServer and randomServer.id ~= game.JobId then
+                print("🌐 [SERVER-HOP] Joining random server: "..randomServer.id)
                 TeleportService:TeleportToPlaceInstance(placeId, randomServer.id, LocalPlayer)
             end
         end
@@ -1364,8 +1418,10 @@ end
 local function summonBoss()
     if not autofarmEnabled or mainFarmPaused or STEPS_IN_PROGRESS then return end
     pcall(function()
+        -- Check if boss already exists
         local boss=workspace.Mobs.Ocean:FindFirstChild(selectedBoss)
-        if boss then return end 
+        if boss then return end -- Boss exists, don't summon
+        
         local g=LocalPlayer.PlayerGui:FindFirstChild("MainGui")
         if g and g:FindFirstChild("SUMMON") and g.SUMMON:FindFirstChild("Main") then
             local btn=g.SUMMON.Main:FindFirstChild(selectedBoss)
@@ -1378,8 +1434,11 @@ local function executeBossFarmSteps()
     if isExecutingSteps or stepsCompleted or not autofarmEnabled then return end
     STEPS_IN_PROGRESS=true; mainFarmPaused=true
     isExecutingSteps=true
+    print("🔧 Steps started")
     task.spawn(function()
         pcall(function()
+            -- STEP 1 & 4 REMOVED - Auto-equipped by game QOL update
+            
             if step2Tool then
                 equipTool(step2Tool); task.wait(1)
                 if step2FEnabled and not step2FActivated then
@@ -1396,42 +1455,158 @@ local function executeBossFarmSteps()
             task.wait(0.5)
             stepsCompleted=true; isExecutingSteps=false
             STEPS_IN_PROGRESS=false; mainFarmPaused=false
+            print("✅ Steps completed!")
             summonBoss()
         end)
     end)
+end
+
+local function isInventoryEmpty()
+    local isEmpty = true
+    pcall(function()
+        local g = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+        if g and g:FindFirstChild("INVENTORY") and g.INVENTORY:FindFirstChild("BackpackFrame") then
+            for _, child in pairs(g.INVENTORY.BackpackFrame:GetChildren()) do
+                if child:IsA("Frame") and child.Name ~= "UIGridLayout" and child.Name ~= "UIStroke" then
+                    isEmpty = false
+                    break
+                end
+            end
+        end
+    end)
+    return isEmpty
 end
 
 -- ================================================
 -- SECTION 18: GAME LOOPS
 -- ================================================
 
--- Inventory (DYNAMIC BLACKLIST)
+-- Guarantee
 task.spawn(function()
-    local invRemote = game:GetService("ReplicatedStorage"):WaitForChild("System"):WaitForChild("Inv"):WaitForChild("Inventory")
-    local itemUsing = LocalPlayer:WaitForChild("ItemUsing")
-    local keysToWatch = {"Sword", "Melee", "Special", "Fruit", "Accessory"}
-    
-    while task.wait(3) do
-        if inventoryEnabled and not STEPS_IN_PROGRESS then
-            local backpack = LocalPlayer:FindFirstChild("Backpack")
-            if backpack then
-                local blacklist = {}
-                for _, key in ipairs(keysToWatch) do
-                    local obj = itemUsing:FindFirstChild(key)
-                    if obj and obj:IsA("StringValue") and obj.Value ~= "" then
-                        blacklist[obj.Value] = true
+    while task.wait(1) do
+        if guaranteeEnabled and #selectedGuaranteeItems>0 and not STEPS_IN_PROGRESS then
+            pcall(function()
+                local g=LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+                if not g or not g:FindFirstChild("GUARANTEE") then return end
+                local main=g.GUARANTEE:FindFirstChild("Main")
+                if not main then return end
+                for _,itemName in pairs(selectedGuaranteeItems) do
+                    local itemFrame=main:FindFirstChild(itemName)
+                    if not itemFrame then continue end
+                    local frame=itemFrame:FindFirstChild("Frame")
+                    if not frame then continue end
+                    local progress=frame:FindFirstChild("TextLabel1")
+                    if not progress then continue end
+                    local cur,max=progress.Text:match("(%d+)/(%d+)")
+                    if not cur then continue end
+                    cur,max=tonumber(cur),tonumber(max)
+                    if cur<max then continue end
+                    local buyBtn=frame:FindFirstChild("Buy")
+                    if buyBtn and buyBtn:IsA("TextButton") then
+                        robustClick(buyBtn); task.wait(0.8)
                     end
                 end
-                for _, item in ipairs(backpack:GetChildren()) do
-                    if item:IsA("Tool") and not blacklist[item.Name] then
-                        pcall(function() invRemote:InvokeServer("Add", item.Name, 1) end)
-                        task.wait(0.1)
-                    end
-                end
-            end
+            end)
         end
     end
 end)
+
+-- Merchant
+task.spawn(function()
+    while task.wait(1.2) do
+        if merchantEnabled and not STEPS_IN_PROGRESS then
+            pcall(function()
+                local g=LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
+                if g and g:FindFirstChild("MERCHANT") and g.MERCHANT:FindFirstChild("ScrollingFrame") then
+                    for _,itemName in pairs(selectedMerchantItems) do
+                        local f=g.MERCHANT.ScrollingFrame:FindFirstChild(itemName)
+                        if f and f:FindFirstChild("Stocks") and f:FindFirstChild("BuyButton") then
+                            local s=f.Stocks.Text:match("(%d+)")
+                            if s and tonumber(s)>0 then robustClick(f.BuyButton); task.wait(0.3) end
+                        end
+                    end
+                end
+            end)
+        end
+    end
+end)
+
+-- Inventory (MODIFIED WITH ONE-TIME AUTO-SYNC FIX)
+task.spawn(function()
+    local hasSynced = false -- Gestione locale del sync per eseguirlo 1 sola volta all'attivazione
+
+    while true do
+        if inventoryEnabled and not STEPS_IN_PROGRESS then
+            local plrHud = LocalPlayer.PlayerGui:FindFirstChild("PLR")
+            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+            
+            -- Verifichiamo che i nodi UI fondamentali esistano prima di procedere
+            if plrHud and mainGui then
+                -- Eseguiamo il Sync solo se non è già stato fatto in questa sessione di attivazione
+                if not hasSynced then
+                    local invButton = plrHud.Main:FindFirstChild("INVENTORY")
+                    local invOpenVal = invButton and invButton:FindFirstChild("Open")
+                    
+                    if invOpenVal and invOpenVal.Value == false then
+                        print("🔄 [SYSTEM] Auto-Storage Attivo: Sincronizzazione Iniziale Inventario...")
+                        task.wait(1) -- Pausa di sicurezza anti-glitch per UI in caricamento / Config Auto-Load
+                        robustClick(invButton)
+                        task.wait(1.5) -- Tempo necessario al motore grafico del gioco per istanziare i tool
+                        robustClick(invButton) 
+                        task.wait(0.5)
+                    end
+                    hasSynced = true
+                end
+
+                -- Logica Standard di Spostamento / Storage degli Item
+                local found = false
+                pcall(function()
+                    if mainGui:FindFirstChild("INVENTORY") and mainGui.INVENTORY:FindFirstChild("BackpackFrame") then
+                        for _, f in pairs(mainGui.INVENTORY.BackpackFrame:GetChildren()) do
+                            if f.Name == "UIGridLayout" or f.Name == "UIStroke" then continue end
+                            local btn = f:FindFirstChild("Button")
+                            if btn and btn:FindFirstChild("Amount") then
+                                local n = tonumber(btn.Amount.Text:match("(%d+)"))
+                                if n and n > 0 then
+                                    found = true
+                                    for i = 1, math.min(n, 15) do
+                                        task.spawn(function() robustClick(btn) end)
+                                    end
+                                    task.wait(0.05)
+                                end
+                            end
+                        end
+                    end
+                end)
+                task.wait(found and 0.1 or 2)
+            else
+                -- In caso di caricamento iniziale del gioco, attendi che la UI sia istanziata
+                task.wait(1)
+            end
+        else
+            -- Se il toggle viene disattivato (o ci sono boss step attivi), resetta il flag di Sync
+            hasSynced = false
+            task.wait(1)
+        end
+    end
+end)
+
+-- Farm mob
+local function farmMob(mob)
+    if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
+    local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    pcall(function()
+        local t=mob.HumanoidRootPart
+        local off=Vector3.new(0,0,0)
+        if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
+        elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
+        elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
+        elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
+        hrp.CFrame=CFrame.new(t.Position+off, t.Position)
+    end)
+    useSkills()
+end
 
 local function farmOceanMob(mob)
     if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
@@ -1464,91 +1639,23 @@ local function farmOceanHopMob(mob, mode)
     end
 end
 
--- Ocean-Hop UPDATED
-task.spawn(function()
-    while task.wait(0.3) do
-        if not oceanHopEnabled or STEPS_IN_PROGRESS then continue end
-        
-        local oceanFolder = (workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean"))
-        local mobs = {}
-        if oceanFolder then
-            for _, mob in pairs(oceanFolder:GetChildren()) do
-                if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
-                    table.insert(mobs, mob)
-                end
-            end
-        end
-            
-        if #mobs > 0 then
-            -- Equip MUI if needed
-            if oceanHopMUIAutoEquip and oceanHopMUITool then
-                forceEquipTool(oceanHopMUITool)
-                if oceanHopMUISkillF then useSkillF() end
-                task.wait(1)
-            end
-            
-            -- Farm with priority if enabled
-            local targetMob = nil
-            if oceanHopPriorityEnabled and oceanHopPriorityMob then
-                for _, m in pairs(mobs) do
-                    if m.Name == oceanHopPriorityMob then
-                        targetMob = m
-                        break
-                    end
-                end
-            end
-            
-            if targetMob then
-                while targetMob and targetMob.Parent and oceanHopEnabled do
-                    farmOceanHopMob(targetMob, "regular")
-                    task.wait(0.2)
-                    if not workspace.Mobs.Ocean:FindFirstChild(targetMob.Name) then break end
-                end
-            end
-            
-            for _, mob in pairs(mobs) do
-                if mob ~= targetMob then
-                    while mob and mob.Parent and oceanHopEnabled do
-                        farmOceanHopMob(mob, "regular")
-                        task.wait(0.2)
-                        if not workspace.Mobs.Ocean:FindFirstChild(mob.Name) then break end
-                    end
-                end
-            end
-        else
-            -- Ocean Empty, wait 10s then hop
-            print("🔄 [OCEAN-HOP] Ocean vuoto, avvio timer 10s...")
-            local startTime = tick()
-            local hopConfirmed = true
+local function farmEventMob(mob)
+    if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
+    local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    pcall(function()
+        local t=mob.HumanoidRootPart
+        local off=Vector3.new(0,0,0)
+        if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
+        elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
+        elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
+        elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
+        hrp.CFrame=CFrame.new(t.Position+off, t.Position)
+    end)
+    useEventSkills()
+end
 
-            while tick() - startTime < 10 do
-                task.wait(1)
-                local checkMobs = 0
-                if oceanFolder then
-                    for _, child in pairs(oceanFolder:GetChildren()) do
-                        if child:IsA("Model") and child:FindFirstChild("HumanoidRootPart") then
-                            checkMobs = checkMobs + 1
-                        end
-                    end
-                end
-                
-                if checkMobs > 0 then
-                    print("🚫 [OCEAN-HOP] Mob spawnato! Timer annullato.")
-                    hopConfirmed = false
-                    break
-                end
-                print("⏳ [OCEAN-HOP] Attesa hop: " .. math.floor(tick() - startTime) .. "s")
-            end
-
-            if hopConfirmed and oceanHopEnabled then
-                print("🌐 [OCEAN-HOP] Server hopping...")
-                serverHop()
-            end
-        end
-    end
-end)
-
--- Main Ocean Farm
+-- Ocean
 task.spawn(function()
     while task.wait(0.3) do
         if STEPS_IN_PROGRESS then continue end
@@ -1568,7 +1675,7 @@ task.spawn(function()
                 end
             end)
             if #mobs>0 then
-                mainFarmPaused=true
+                mainFarmPaused=true; alreadyAtEventIsland=false
                 if oceanAutoEquipTool then forceEquipTool(oceanAutoEquipTool) end
                 for _,mob in pairs(mobs) do
                     while mob and mob.Parent and oceanMobsEnabled and not STEPS_IN_PROGRESS do
@@ -1582,8 +1689,182 @@ task.spawn(function()
     end
 end)
 
--- Boss manager, steps manager, and other systems remain...
--- [OMISSIS FOR BREVITY IN RESPONSE - REMAINDER OF SCRIPT UNCHANGED]
+-- Ocean-Hop
+task.spawn(function()
+    while task.wait(0.3) do
+        if not oceanHopEnabled or STEPS_IN_PROGRESS then continue end
+        
+        -- Regular Farm Mode
+        if oceanHopRegularEnabled and not oceanHopFastEnabled then
+            local mobs = {}
+            pcall(function()
+                if workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean") then
+                    for _,mob in pairs(workspace.Mobs.Ocean:GetChildren()) do
+                        if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
+                            table.insert(mobs, mob)
+                        end
+                    end
+                end
+            end)
+            
+            if #mobs > 0 then
+                -- Equip MUI if needed
+                if oceanHopMUIAutoEquip and oceanHopMUITool then
+                    forceEquipTool(oceanHopMUITool)
+                    if oceanHopMUISkillF then useSkillF() end
+                    task.wait(1)
+                end
+                
+                -- Farm with priority if enabled
+                local targetMob = nil
+                if oceanHopPriorityEnabled and oceanHopPriorityMob then
+                    for _, m in pairs(mobs) do
+                        if m.Name == oceanHopPriorityMob then
+                            targetMob = m
+                            break
+                        end
+                    end
+                end
+                
+                -- Farm all mobs (or priority first)
+                if targetMob then
+                    while targetMob and targetMob.Parent and oceanHopRegularEnabled do
+                        farmOceanHopMob(targetMob, "regular")
+                        task.wait(0.2)
+                        if not workspace.Mobs.Ocean:FindFirstChild(targetMob.Name) then break end
+                    end
+                end
+                
+                -- Farm remaining mobs
+                for _, mob in pairs(mobs) do
+                    if mob ~= targetMob then
+                        while mob and mob.Parent and oceanHopRegularEnabled do
+                            farmOceanHopMob(mob, "regular")
+                            task.wait(0.2)
+                            if not workspace.Mobs.Ocean:FindFirstChild(mob.Name) then break end
+                        end
+                    end
+                end
+            else
+                -- Ocean is empty, server hop
+                print("🔄 [OCEAN-HOP] Ocean empty, preparing server hop...")
+                
+                -- Wait for inventory to be empty and stay empty for the full delay
+                local serverHopTimer = 0
+                print("⏳ [OCEAN-HOP] Waiting for inventory to empty...")
+                while serverHopTimer < oceanHopServerHopDelay do
+                    if isInventoryEmpty() then
+                        serverHopTimer = serverHopTimer + 0.2
+                        print("⏳ [OCEAN-HOP] Inventory empty! Timer: "..serverHopTimer.."/"..oceanHopServerHopDelay)
+                    else
+                        serverHopTimer = 0
+                        print("🔄 [OCEAN-HOP] Item detected! Timer reset to 0")
+                    end
+                    task.wait(0.2)
+                end
+                print("✅ [OCEAN-HOP] Inventory empty and timer complete!")
+                
+                if oceanHopEnabled then
+                    oceanHopFastSkillActivated = false
+                    print("🌐 [OCEAN-HOP] Server hopping...")
+                    serverHop()
+                end
+            end
+        
+        -- Fast Farm Mode (Vergil)
+        end
+    end
+end)
+
+-- Event
+task.spawn(function()
+    while task.wait(0.6) do
+        if STEPS_IN_PROGRESS then continue end
+        if eventIslandEnabled and not mainFarmPaused then
+            if not alreadyAtEventIsland then
+                pcall(function()
+                    local island=workspace:FindFirstChild("Island")
+                    if island and island:FindFirstChild("Event Island") then
+                        local txt=island["Event Island"]:FindFirstChild("EventText")
+                        if txt then
+                            local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                            if hrp then
+                                local pos=txt:IsA("Model") and txt:FindFirstChild("HumanoidRootPart") or txt
+                                if pos then hrp.CFrame=pos.CFrame*CFrame.new(0,5,0); alreadyAtEventIsland=true end
+                            end
+                        end
+                    end
+                end)
+                task.wait(1)
+            end
+            if eventAutoEquipTool then forceEquipTool(eventAutoEquipTool) end
+            local mobs={}
+            pcall(function()
+                if workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Event Island") then
+                    for _,mob in pairs(workspace.Mobs["Event Island"]:GetChildren()) do
+                        if mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
+                            table.insert(mobs,mob)
+                        end
+                    end
+                end
+            end)
+            for _,mob in pairs(mobs) do
+                while mob and mob.Parent and eventIslandEnabled and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                    farmEventMob(mob); task.wait(0.2)
+                    if not workspace.Mobs["Event Island"]:FindFirstChild(mob.Name) then break end
+                end
+            end
+        end
+    end
+end)
+
+-- Island Farm
+task.spawn(function()
+    while task.wait(0.3) do
+        if STEPS_IN_PROGRESS then continue end
+        if islandFarmEnabled and selectedIslandMob and not mainFarmPaused then
+            local foundMob = nil
+            pcall(function()
+                if workspace:FindFirstChild("Mobs") then
+                    for _, islandFolder in pairs(workspace.Mobs:GetChildren()) do
+                        -- Skip Ocean since it has its own tab
+                        if islandFolder.Name == "Ocean" then continue end
+                        if islandFolder:IsA("Folder") then
+                            local mob = islandFolder:FindFirstChild(selectedIslandMob)
+                            if mob and mob:IsA("Model") and mob:FindFirstChild("HumanoidRootPart") then
+                                foundMob = mob
+                                break
+                            end
+                        end
+                    end
+                end
+            end)
+            
+            if foundMob then
+                if islandAutoEquip and islandAutoEquipTool then
+                    forceEquipTool(islandAutoEquipTool)
+                end
+                while foundMob and foundMob.Parent and islandFarmEnabled and selectedIslandMob == foundMob.Name and not mainFarmPaused and not STEPS_IN_PROGRESS do
+                    -- Position player near mob
+                    pcall(function()
+                        local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                        if hrp and foundMob:FindFirstChild("HumanoidRootPart") then
+                            local t=foundMob.HumanoidRootPart
+                            local off=Vector3.new(0,0,0)
+                            if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
+                            elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
+                            elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
+                            elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
+                            hrp.CFrame=CFrame.new(t.Position+off, t.Position)
+                        end
+                    end)
+                    useIslandSkills()
+                    task.wait(0.2)
+                end
+            end
+        end
+    end
+end)
 
 -- Boss attack
 task.spawn(function()
@@ -1609,6 +1890,64 @@ task.spawn(function()
     end
 end)
 
+-- Boss anchor
+task.spawn(function()
+    while task.wait(0.1) do
+        if STEPS_IN_PROGRESS or not autofarmEnabled or not stepsCompleted or mainFarmPaused then continue end
+        pcall(function()
+            local boss=workspace.Mobs.Ocean:FindFirstChild(selectedBoss)
+            if boss and boss:FindFirstChild("HumanoidRootPart") then
+                local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                if hrp then
+                    local t=boss.HumanoidRootPart
+                    local off=Vector3.new(0,0,0)
+                    if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
+                    elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
+                    elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
+                    elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
+                    hrp.CFrame=CFrame.new(t.Position+off, t.Position)
+                end
+            end
+        end)
+    end
+end)
+
+-- Steps manager
+task.spawn(function()
+    while task.wait(2) do
+        if autofarmEnabled and not stepsCompleted and not isExecutingSteps and not STEPS_IN_PROGRESS then
+            pcall(function()
+                if not workspace.Mobs.Ocean:FindFirstChild(selectedBoss) then
+                    executeBossFarmSteps(); task.wait(8)
+                end
+            end)
+        end
+    end
+end)
+
+-- Respawn
+LocalPlayer.CharacterAdded:Connect(function()
+    task.wait(4)
+    stepsCompleted=false; step2FActivated=false
+    isExecutingSteps=false; STEPS_IN_PROGRESS=false
+    alreadyAtEventIsland=false
+    
+    -- Re-equip tools only if mobs actually exist
+    if oceanMobsEnabled and oceanAutoEquipTool then
+        pcall(function()
+            local oceanFolder = workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean")
+            if oceanFolder then
+                for _,m in pairs(oceanFolder:GetChildren()) do
+                    if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
+                        forceEquipTool(oceanAutoEquipTool)
+                        break
+                    end
+                end
+            end
+        end)
+    end
+    if eventIslandEnabled and eventAutoEquipTool then
+        pcall(function()
 -- Boss anchor
 task.spawn(function()
     while task.wait(0.1) do
