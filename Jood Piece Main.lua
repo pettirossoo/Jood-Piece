@@ -705,7 +705,7 @@ UI.OceanHopRegularToggle=OceanHopTab:CreateToggle({
     Name="Regular Farm", CurrentValue=oceanHopRegularEnabled,
     Callback=function(v) oceanHopRegularEnabled=v end
 })
-UI.OceanHopRegularDD=OceanHopTab:CreateDropdown({
+OceanHopTab:CreateDropdown({
     Name="Tool", Options=getBackpackTools(),
     CurrentOption=oceanHopRegularTool and {oceanHopRegularTool} or {},
     MultipleOptions=false,
@@ -833,7 +833,18 @@ UI.MerchDD=MerchTab:CreateDropdown({
 -- ================================================
 UI.InvToggle=InvTab:CreateToggle({
     Name="Auto-Store (FAST)", CurrentValue=inventoryEnabled,
-    Callback=function(v) inventoryEnabled=v end
+    Callback=function(v)
+        inventoryEnabled=v
+        -- Logic to handle GUI opening/closing
+        pcall(function()
+            local mainGui = LocalPlayer.PlayerGui:FindFirstChild("MainGui")
+            -- Attempting to find the Inventory button to toggle state
+            local invBtn = mainGui and (mainGui:FindFirstChild("Inventory", true) or mainGui:FindFirstChild("Bag", true))
+            if invBtn and invBtn:IsA("GuiButton") then
+                robustClick(invBtn)
+            end
+        end)
+    end
 })
 
 -- ================================================
@@ -895,29 +906,17 @@ UI.DisableVFXToggle = MiscTab:CreateToggle({
     Name="Disable VFX", CurrentValue=disableVFX,
     Callback=function(v)
         disableVFX = v
-        print("🔍 [DEBUG] Disable VFX toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
-            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
-                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
-                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
-                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
-                    
                     if scrolling then
                         local vfx = scrolling:FindFirstChild("DisableVFX")
-                        print("🔍 [DEBUG] DisableVFX found: "..tostring(vfx ~= nil))
-                        
                         if vfx then
                             local imgBtn = vfx:FindFirstChild("ImageButton")
-                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
-                            
                             if imgBtn then
-                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                                 task.wait(0.5)
@@ -934,29 +933,17 @@ UI.DisableCamShakeToggle = MiscTab:CreateToggle({
     Name="Disable Cam Shake", CurrentValue=disableCamShake,
     Callback=function(v)
         disableCamShake = v
-        print("🔍 [DEBUG] Disable Cam Shake toggled, attempting click...")
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            print("🔍 [DEBUG] SettingGui found: "..tostring(settingGui ~= nil))
-            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
-                print("🔍 [DEBUG] SETTING found: "..tostring(setting ~= nil))
-                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
-                    print("🔍 [DEBUG] ScrollingFrame found: "..tostring(scrolling ~= nil))
-                    
                     if scrolling then
                         local camshake = scrolling:FindFirstChild("CamShake")
-                        print("🔍 [DEBUG] CamShake found: "..tostring(camshake ~= nil))
-                        
                         if camshake then
                             local imgBtn = camshake:FindFirstChild("ImageButton")
-                            print("🔍 [DEBUG] ImageButton found: "..tostring(imgBtn ~= nil))
-                            
                             if imgBtn then
-                                print("✅ [DEBUG] Clicking ImageButton...")
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
                                 task.wait(0.5)
@@ -975,19 +962,14 @@ UI.FastModeToggle = MiscTab:CreateToggle({
         fastModeEnabled = v
         pcall(function()
             local settingGui = LocalPlayer.PlayerGui:FindFirstChild("SettingGui")
-            
             if settingGui then
                 local setting = settingGui:FindFirstChild("SETTING")
-                
                 if setting then
                     local scrolling = setting:FindFirstChild("ScrollingFrame")
-                    
                     if scrolling then
                         local fastMode = scrolling:FindFirstChild("FastMode")
-                        
                         if fastMode then
                             local imgBtn = fastMode:FindFirstChild("ImageButton")
-                            
                             if imgBtn then
                                 if firesignal then firesignal(imgBtn.MouseButton1Click)
                                 else imgBtn.MouseButton1Click:Fire() end
