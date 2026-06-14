@@ -1264,48 +1264,6 @@ local function useSkillF()
     end)
 end
 
-local function useEventSkills()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            if eventSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
-            if eventSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
-            if eventSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
-            if eventSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-            if eventSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
-        end
-    end)
-end
-
-local function useIslandSkills()
-    pcall(function()
-        local ui=LocalPlayer.PlayerGui:FindFirstChild("SkillUI")
-        if ui and ui:FindFirstChild("Mobile Button") then
-            if islandSkillZ and ui["Mobile Button"]:FindFirstChild("Z") then robustClick(ui["Mobile Button"]["Z"]); task.wait(0.05) end
-            if islandSkillX and ui["Mobile Button"]:FindFirstChild("X") then robustClick(ui["Mobile Button"]["X"]); task.wait(0.05) end
-            if islandSkillC and ui["Mobile Button"]:FindFirstChild("C") then robustClick(ui["Mobile Button"]["C"]); task.wait(0.05) end
-            if islandSkillV and ui["Mobile Button"]:FindFirstChild("V") then robustClick(ui["Mobile Button"]["V"]); task.wait(0.05) end
-            if islandSkillF and ui["Mobile Button"]:FindFirstChild("F") then robustClick(ui["Mobile Button"]["F"]); task.wait(0.05) end
-        end
-    end)
-end
-
-local function farmEventMob(mob)
-    if not mob or not mob:FindFirstChild("HumanoidRootPart") then return end
-    local hrp=LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if not hrp then return end
-    pcall(function()
-        local t=mob.HumanoidRootPart
-        local off=Vector3.new(0,0,0)
-        if followMode=="behind" then off=t.CFrame.LookVector*-followDistance
-        elseif followMode=="front" then off=t.CFrame.LookVector*followDistance
-        elseif followMode=="above" then off=Vector3.new(0,followDistance,0)
-        elseif followMode=="below" then off=Vector3.new(0,-followDistance,0) end
-        hrp.CFrame=CFrame.new(t.Position+off, t.Position)
-    end)
-    useEventSkills()
-end
-
 local function serverHop()
     pcall(function()
         local Api = "https://games.roblox.com/v1/games/"
@@ -1753,36 +1711,6 @@ LocalPlayer.CharacterAdded:Connect(function()
     task.wait(4)
     stepsCompleted=false; step2FActivated=false
     isExecutingSteps=false; STEPS_IN_PROGRESS=false
-    alreadyAtEventIsland=false
-    
-    -- Re-equip tools only if mobs actually exist
-    if oceanMobsEnabled and oceanAutoEquipTool then
-        pcall(function()
-            local oceanFolder = workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Ocean")
-            if oceanFolder then
-                for _,m in pairs(oceanFolder:GetChildren()) do
-                    if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
-                        forceEquipTool(oceanAutoEquipTool)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-    if eventIslandEnabled and eventAutoEquipTool then
-        pcall(function()
-            local eventFolder = workspace:FindFirstChild("Mobs") and workspace.Mobs:FindFirstChild("Event Island")
-            if eventFolder then
-                for _,m in pairs(eventFolder:GetChildren()) do
-                    if m:IsA("Model") and m:FindFirstChild("HumanoidRootPart") then
-                        forceEquipTool(eventAutoEquipTool)
-                        break
-                    end
-                end
-            end
-        end)
-    end
-    
     if flyEnabled then task.wait(0.5); startFly() end
     if autofarmEnabled then task.wait(1); executeBossFarmSteps() end
 end)
